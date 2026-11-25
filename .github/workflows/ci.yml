@@ -1,0 +1,92 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r tools/requirements.txt
+      - run: python tools/check_contracts.py --check
+
+  agent-attribution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check commits in the pull request
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          python tools/check_agent_attribution.py \
+            --range "origin/${BASE_REF}..HEAD" \
+            --text-env PR_TITLE \
+            --text-env PR_BODY
+      - name: Check commits pushed to main
+        if: github.event_name == 'push'
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          if [ "${BEFORE_SHA}" = "0000000000000000000000000000000000000000" ]; then
+            python tools/check_agent_attribution.py --range "${AFTER_SHA}~1..${AFTER_SHA}"
+          else
+            python tools/check_agent_attribution.py --range "${BEFORE_SHA}..${AFTER_SHA}"
+          fi
+
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: ci-only-jwt-secret-not-for-production
+      HMAC_WEBHOOK_SECRET: ci-only-hmac-secret-not-for-production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r services/crm-api/requirements.txt pytest pyyaml jsonschema
+      - name: Repository and shared tests
+        env:
+          PYTHONPATH: services
+        run: pytest -q tests services/shared
+      - name: Service tests
+        run: |
+          status=0
+          for tests_dir in services/*/tests; do
+            [ -d "$tests_dir" ] || continue
+            service="$(basename "$(dirname "$tests_dir")")"
+            [ "$service" = "shared" ] && continue
+            echo "::group::$service"
+            (cd "services/$service" && PYTHONPATH="$GITHUB_WORKSPACE/services:$GITHUB_WORKSPACE/services/$service" pytest -q tests) || status=1
+            echo "::endgroup::"
+          done
+          exit "$status"
+
+  compose-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare .env
+        run: |
+          cp .env.example .env
+          sed -i 's/^JWT_SECRET=.*/JWT_SECRET=ci-only-jwt-secret-not-for-production/' .env
+          sed -i 's/^HMAC_WEBHOOK_SECRET=.*/HMAC_WEBHOOK_SECRET=ci-only-hmac-secret-not-for-production/' .env
+      - run: docker compose config -q
+      - run: docker compose --profile mock config -q

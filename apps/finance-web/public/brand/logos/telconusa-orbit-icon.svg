@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" fill="none">
+  <defs>
+    <radialGradient id="tn-globe-i" cx="35%" cy="28%" r="72%" fx="32%" fy="24%">
+      <stop offset="0%" stop-color="#FF6B7A"/>
+      <stop offset="42%" stop-color="#E11D2E"/>
+      <stop offset="82%" stop-color="#9F1239"/>
+      <stop offset="100%" stop-color="#6B0F1A"/>
+    </radialGradient>
+    <radialGradient id="tn-orb-i" cx="34%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#FF8A95"/>
+      <stop offset="48%" stop-color="#F43F5E"/>
+      <stop offset="100%" stop-color="#9F1239"/>
+    </radialGradient>
+    <linearGradient id="tn-orbit-back-i" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#7F1120"/>
+      <stop offset="55%" stop-color="#9F1239"/>
+      <stop offset="100%" stop-color="#E11D2E"/>
+    </linearGradient>
+    <linearGradient id="tn-orbit-front-i" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#88131D"/>
+      <stop offset="45%" stop-color="#E11D2E"/>
+      <stop offset="100%" stop-color="#FF5C6C"/>
+    </linearGradient>
+
+    <mask id="tn-orb-gap-i">
+      <rect x="-55" y="-55" width="110" height="110" fill="white"/>
+      <circle cx="30" cy="-9.9" r="8.2" fill="black"/>
+    </mask>
+  </defs>
+
+  <g transform="translate(50, 50)">
+    <g transform="rotate(-28)">
+      <path d="M -40 0 A 40 15 0 0 1 40 0"
+            stroke="url(#tn-orbit-back-i)"
+            stroke-width="6.2"
+            stroke-linecap="round"
+            mask="url(#tn-orb-gap-i)"
+            fill="none"/>
+    </g>
+
+    <circle cx="0" cy="0" r="22.5" fill="url(#tn-globe-i)"/>
+    <path d="M -12 -10.5 A 15.5 15.5 0 0 1 11.5 -11"
+          stroke="#FFE4E6"
+          stroke-width="2.6"
+          stroke-linecap="round"
+          opacity="0.55"
+          fill="none"/>
+
+    <g transform="rotate(-28)">
+      <path d="M 40 0 A 40 15 0 0 1 -40 0"
+            stroke="url(#tn-orbit-front-i)"
+            stroke-width="6.5"
+            stroke-linecap="round"
+            fill="none"/>
+      <circle cx="30" cy="-9.9" r="5.4" fill="url(#tn-orb-i)"/>
+      <circle cx="28.3" cy="-11.4" r="1.4" fill="#FFE4E6" opacity="0.6"/>
+    </g>
+  </g>
+</svg>

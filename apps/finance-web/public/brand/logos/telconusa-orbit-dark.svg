@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 112" width="430" height="112" fill="none">
+  <defs>
+    <!-- 3D Spherical Depth Gradient (tuned for Dark Backgrounds) -->
+    <radialGradient id="tn-globe-d" cx="35%" cy="28%" r="72%" fx="32%" fy="24%">
+      <stop offset="0%" stop-color="#FF7A88"/>
+      <stop offset="44%" stop-color="#F43F5E"/>
+      <stop offset="84%" stop-color="#BE123C"/>
+      <stop offset="100%" stop-color="#7F1120"/>
+    </radialGradient>
+
+    <radialGradient id="tn-orb-d" cx="34%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#FF99A3"/>
+      <stop offset="48%" stop-color="#FF4757"/>
+      <stop offset="100%" stop-color="#BE123C"/>
+    </radialGradient>
+
+    <linearGradient id="tn-orbit-back-d" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#6B0F1A"/>
+      <stop offset="55%" stop-color="#9F1239"/>
+      <stop offset="100%" stop-color="#F43F5E"/>
+    </linearGradient>
+    <linearGradient id="tn-orbit-front-d" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#88131D"/>
+      <stop offset="45%" stop-color="#F43F5E"/>
+      <stop offset="100%" stop-color="#FF6B7A"/>
+    </linearGradient>
+
+    <linearGradient id="tn-word-red-d" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5C6C"/>
+      <stop offset="100%" stop-color="#E11D2E"/>
+    </linearGradient>
+
+    <mask id="tn-orb-gap-d">
+      <rect x="-55" y="-55" width="110" height="110" fill="white"/>
+      <circle cx="30" cy="-9.9" r="8.2" fill="black"/>
+    </mask>
+  </defs>
+
+  <g transform="translate(56, 56)">
+    <g transform="rotate(-28)">
+      <path d="M -40 0 A 40 15 0 0 1 40 0"
+            stroke="url(#tn-orbit-back-d)"
+            stroke-width="6.2"
+            stroke-linecap="round"
+            mask="url(#tn-orb-gap-d)"
+            fill="none"/>
+    </g>
+
+    <circle cx="0" cy="0" r="22.5" fill="url(#tn-globe-d)"/>
+    <path d="M -12 -10.5 A 15.5 15.5 0 0 1 11.5 -11"
+          stroke="#FFE4E6"
+          stroke-width="2.6"
+          stroke-linecap="round"
+          opacity="0.6"
+          fill="none"/>
+
+    <g transform="rotate(-28)">
+      <path d="M 40 0 A 40 15 0 0 1 -40 0"
+            stroke="url(#tn-orbit-front-d)"
+            stroke-width="6.5"
+            stroke-linecap="round"
+            fill="none"/>
+      <circle cx="30" cy="-9.9" r="5.4" fill="url(#tn-orb-d)"/>
+      <circle cx="28.3" cy="-11.4" r="1.4" fill="#FFE4E6" opacity="0.65"/>
+    </g>
+  </g>
+
+  <g transform="translate(108, 66)">
+    <text font-family="'Plus Jakarta Sans', 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif"
+          font-size="48"
+          font-weight="800"
+          letter-spacing="-1.4">
+      <tspan fill="#F8FAFC">Telco</tspan><tspan fill="url(#tn-word-red-d)">Nusa</tspan>
+    </text>
+    <text x="2" y="21"
+          font-family="'Plus Jakarta Sans', 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif"
+          font-size="11"
+          font-weight="600"
+          letter-spacing="3.4"
+          fill="#94A3B8">CONNECTING NUSANTARA</text>
+  </g>
+</svg>

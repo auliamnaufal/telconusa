@@ -1,0 +1,83 @@
+/* ==========================================================================
+   TelcoNusa — Web Design Tokens & Typography System
+   Import Google Fonts in <head>:
+   https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap
+   ========================================================================== */
+
+:root {
+  /* Brand Red Palette */
+  --tn-red-50:  #FFF1F2;
+  --tn-red-100: #FFE4E6;
+  --tn-red-200: #FECDD3;
+  --tn-red-300: #FDA4AF;
+  --tn-red-400: #FF5C6C; /* Dark-mode accent / highlight */
+  --tn-red-500: #FF4757; /* Signal Coral Red */
+  --tn-red-600: #E11D2E; /* Primary Brand Red */
+  --tn-red-700: #BE123C; /* Hover / Active Primary */
+  --tn-red-800: #9F1239; /* Deep Crimson */
+  --tn-red-900: #88131D; /* Dark Burgundy */
+
+  /* Neutral Palette (Light Mode) */
+  --tn-bg:            #FFFFFF;
+  --tn-bg-subtle:     #F8FAFC;
+  --tn-bg-muted:      #F1F5F9;
+  --tn-border:        #E2E8F0;
+  --tn-text-primary:  #0F172A;
+  --tn-text-secondary:#475569;
+  --tn-text-muted:    #64748B;
+
+  /* Semantic Status (Finance / ERP Dashboard) */
+  --tn-success:       #15803D;
+  --tn-warning:       #B45309;
+  --tn-danger:        #DC2626;
+  --tn-info:          #0369A1;
+
+  /* Gradients */
+  --tn-gradient-brand: linear-gradient(135deg, #FF4757 0%, #E11D2E 52%, #9F1239 100%);
+
+  /* Font Families */
+  --tn-font-display: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --tn-font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --tn-font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Type Scale (Web) */
+  --tn-text-display: 2.5rem;    /* 40px */
+  --tn-text-h1:      2rem;      /* 32px */
+  --tn-text-h2:      1.5rem;    /* 24px */
+  --tn-text-h3:      1.25rem;   /* 20px */
+  --tn-text-h4:      1.125rem;  /* 18px */
+  --tn-text-body-lg: 1.0625rem; /* 17px */
+  --tn-text-body:    0.9375rem; /* 15px - optimal for web & dashboard UI */
+  --tn-text-sm:      0.875rem;  /* 14px */
+  --tn-text-xs:      0.75rem;   /* 12px */
+  --tn-text-micro:   0.6875rem; /* 11px - uppercase labels / tags */
+
+  /* Logo Responsive Heights */
+  --tn-logo-desktop-nav: 36px;
+  --tn-logo-mobile-nav:  28px;
+  --tn-logo-footer:      32px;
+  --tn-logo-min-full:    24px;  /* Never render full horizontal logo smaller than 24px tall */
+  --tn-logo-min-icon:    16px;  /* Favicon / compact icon minimum */
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+  --tn-bg:            #0B1120;
+  --tn-bg-subtle:     #0F172A;
+  --tn-bg-muted:      #1E293B;
+  --tn-border:        #334155;
+  --tn-text-primary:  #F8FAFC;
+  --tn-text-secondary:#CBD5E1;
+  --tn-text-muted:    #94A3B8;
+  --tn-red-600:       #F43F5E; /* Slightly brighter red for WCAG contrast on dark bg */
+}
+
+/* Base Typography Utility Classes */
+.tn-display { font-family: var(--tn-font-display); font-size: var(--tn-text-display); font-weight: 800; line-height: 1.15; letter-spacing: -0.025em; }
+.tn-h1      { font-family: var(--tn-font-display); font-size: var(--tn-text-h1);      font-weight: 800; line-height: 1.2;  letter-spacing: -0.02em; }
+.tn-h2      { font-family: var(--tn-font-display); font-size: var(--tn-text-h2);      font-weight: 700; line-height: 1.25; letter-spacing: -0.015em; }
+.tn-h3      { font-family: var(--tn-font-display); font-size: var(--tn-text-h3);      font-weight: 700; line-height: 1.3;  letter-spacing: -0.01em; }
+.tn-h4      { font-family: var(--tn-font-display); font-size: var(--tn-text-h4);      font-weight: 600; line-height: 1.35; }
+.tn-body    { font-family: var(--tn-font-body);    font-size: var(--tn-text-body);    font-weight: 400; line-height: 1.6; }
+.tn-caption { font-family: var(--tn-font-body);    font-size: var(--tn-text-xs);      font-weight: 500; line-height: 1.4;  color: var(--tn-text-muted); }
+.tn-numeric { font-family: var(--tn-font-mono);    font-variant-numeric: tabular-nums; }

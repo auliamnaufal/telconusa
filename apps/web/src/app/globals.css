@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+:root {
+  --tn-red-50: #FFF1F2;
+  --tn-red-500: #FF4757;
+  --tn-red-600: #E11D2E;
+  --tn-red-700: #BE123C;
+  --tn-red-800: #9F1239;
+  --tn-ink: #0F172A;
+}
+
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  background-color: #F8FAFC;
+  color: #0F172A;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+}
+
+.font-mono-num {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}

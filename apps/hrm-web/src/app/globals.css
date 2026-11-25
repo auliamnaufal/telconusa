@@ -1,0 +1,4 @@
+@import "tailwindcss";
+body { font-family: var(--font-inter), system-ui, sans-serif; background: #F8FAFC; color: #0F172A; }
+h1, h2, h3, h4, .font-display { font-family: var(--font-jakarta), system-ui, sans-serif; }
+.font-mono-num { font-family: var(--font-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; }

@@ -1,0 +1,13 @@
+{
+  "event_id": "evt_7CFB3817284A",
+  "event_type": "stockrequest.ready",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "stock_request_no": "SR-2026-000001",
+    "ticket_code": "TKT-000001",
+    "status": "READY_TO_ISSUE"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "subscription.activated",
+  "title": "subscription.activated",
+  "description": "Langganan aktif setelah pemasangan selesai.",
+  "x-publisher": "crm",
+  "x-consumers": [
+    "finance"
+  ],
+  "type": "object",
+  "properties": {
+    "subscription_code": {
+      "type": "string"
+    },
+    "customer_code": {
+      "type": "string"
+    },
+    "order_no": {
+      "type": "string"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "business_line": {
+      "type": "string",
+      "enum": [
+        "PREPAID",
+        "POSTPAID",
+        "HOME",
+        "B2B"
+      ]
+    },
+    "monthly_price": {
+      "type": "integer"
+    },
+    "activated_at": {
+      "type": "string"
+    },
+    "referral_code": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "subscription_code",
+    "customer_code",
+    "order_no",
+    "sku",
+    "business_line",
+    "monthly_price",
+    "activated_at"
+  ]
+}

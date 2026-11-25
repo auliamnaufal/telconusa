@@ -1,0 +1,32 @@
+# CODEOWNERS
+#
+# Setiap file track hanya boleh diubah timnya sendiri; area bersama butuh keempat track.
+# Ganti @org/<tim> dengan handle tim atau pengguna GitHub yang sebenarnya, lalu hapus tanda '#'
+# di awal baris. Handle yang tidak ada membuat GitHub menolak file ini, jadi baris di bawah
+# dibiarkan sebagai komentar sampai handle diketahui.
+#
+# /tracks/crm.md                @org/crm
+# /tracks/hrm.md                @org/hrm
+# /tracks/scm.md                @org/scm
+# /tracks/finance.md            @org/finance
+#
+# /apps/web/                    @org/crm
+# /apps/crm-web/                @org/crm
+# /services/crm-api/            @org/crm
+# /apps/hrm-web/                @org/hrm
+# /services/hrm-api/            @org/hrm
+# /apps/scm-web/                @org/scm
+# /services/scm-api/            @org/scm
+# /apps/finance-web/            @org/finance
+# /services/finance-api/        @org/finance
+#
+# Area bersama: perwakilan keempat track
+# /services/shared/             @org/crm @org/hrm @org/scm @org/finance
+# /contracts/                   @org/crm @org/hrm @org/scm @org/finance
+# /docker-compose.yml           @org/crm @org/hrm @org/scm @org/finance
+# /.env.example                 @org/crm @org/hrm @org/scm @org/finance
+# /mysql/init/                  @org/crm @org/hrm @org/scm @org/finance
+# /CONTEXT.md                   @org/crm @org/hrm @org/scm @org/finance
+# /AGENTS.md                    @org/crm @org/hrm @org/scm @org/finance
+# /.github/                     @org/crm @org/hrm @org/scm @org/finance
+# /tools/                       @org/crm @org/hrm @org/scm @org/finance

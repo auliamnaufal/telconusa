@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stockrequest.pending",
+  "title": "stockrequest.pending",
+  "description": "Stok kurang; permintaan pembelian ke vendor dibuat dan tiket menunggu barang.",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "stock_request_no": {
+      "type": "string"
+    },
+    "ticket_code": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDING_STOCK"
+      ]
+    },
+    "missing_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_sku": {
+            "type": "string"
+          },
+          "qty_short": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_sku",
+          "qty_short"
+        ]
+      }
+    },
+    "purchase_request_no": {
+      "type": "string"
+    },
+    "estimated_ready_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "stock_request_no",
+    "ticket_code",
+    "status",
+    "missing_items",
+    "purchase_request_no"
+  ]
+}

@@ -1,0 +1,665 @@
+openapi: 3.0.3
+info:
+  title: TelcoNusa Finance API
+  version: 1.0.0
+  description: Kontrak API milik track finance. Hanya endpoint yang dipakai alur demo atau dipanggil track lain.
+    Setiap operasi menyatakan x-auth (public|user|service), x-roles atau x-scope, dan x-consumers. Perubahan lewat
+    PR yang direview track terdampak.
+servers:
+- url: http://localhost:8004
+paths:
+  /api/v1/invoices:
+    get:
+      operationId: listInvoices
+      summary: Daftar invoice
+      tags:
+      - finance
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - FINANCE_MANAGER
+      - ACCOUNTANT
+      - AR_STAFF
+      - AP_STAFF
+      x-consumers: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+        example: ISSUED
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    invoice_no:
+                      type: string
+                    order_no:
+                      type: string
+                    subtotal:
+                      type: integer
+                    tax_amount:
+                      type: integer
+                    total:
+                      type: integer
+                    paid_amount:
+                      type: integer
+                    virtual_account:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                      - DRAFT
+                      - ISSUED
+                      - PARTIALLY_PAID
+                      - PAID
+                      - OVERDUE
+                      - VOID
+                      - CREDITED
+                    customer_code:
+                      type: string
+                    customer_name:
+                      type: string
+                  required:
+                  - invoice_no
+                  - order_no
+                  - subtotal
+                  - tax_amount
+                  - total
+                  - paid_amount
+                  - virtual_account
+                  - status
+                  - customer_code
+                  - customer_name
+              example:
+              - invoice_no: INV-2026-000002
+                order_no: ORD-2026-000125
+                subtotal: 550000
+                tax_amount: 60500
+                total: 610500
+                paid_amount: 0
+                virtual_account: '8808000000002'
+                status: ISSUED
+                customer_code: CUS-000456
+                customer_name: Andi Pratama
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/invoices/{invoice_no}:
+    get:
+      operationId: getInvoice
+      summary: Detail invoice
+      tags:
+      - finance
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - FINANCE_MANAGER
+      - ACCOUNTANT
+      - AR_STAFF
+      - AP_STAFF
+      x-consumers: []
+      parameters:
+      - name: invoice_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: INV-2026-000002
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoice_no:
+                    type: string
+                  order_no:
+                    type: string
+                  subtotal:
+                    type: integer
+                  tax_amount:
+                    type: integer
+                  total:
+                    type: integer
+                  paid_amount:
+                    type: integer
+                  virtual_account:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - DRAFT
+                    - ISSUED
+                    - PARTIALLY_PAID
+                    - PAID
+                    - OVERDUE
+                    - VOID
+                    - CREDITED
+                  subscription_code:
+                    type: string
+                  customer_code:
+                    type: string
+                  customer_name:
+                    type: string
+                required:
+                - invoice_no
+                - order_no
+                - subtotal
+                - tax_amount
+                - total
+                - paid_amount
+                - virtual_account
+                - status
+                - subscription_code
+                - customer_code
+                - customer_name
+              example:
+                invoice_no: INV-2026-000002
+                order_no: ORD-2026-000125
+                subtotal: 550000
+                tax_amount: 60500
+                total: 610500
+                paid_amount: 0
+                virtual_account: '8808000000002'
+                status: ISSUED
+                subscription_code: SUB-000012
+                customer_code: CUS-000456
+                customer_name: Andi Pratama
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/invoices/{invoice_no}/send:
+    post:
+      operationId: sendInvoice
+      summary: Staf AR mengirim invoice DRAFT ke pelanggan
+      tags:
+      - finance
+      x-auth: user
+      x-roles:
+      - FINANCE_MANAGER
+      - AR_STAFF
+      x-consumers: []
+      parameters:
+      - name: invoice_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: INV-2026-000002
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoice_no:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - ISSUED
+                required:
+                - invoice_no
+                - status
+              example:
+                invoice_no: INV-2026-000002
+                status: ISSUED
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/invoices/{invoice_no}/confirm-payment:
+    post:
+      operationId: confirmPayment
+      summary: Staf AR mengecek ulang dan mengonfirmasi pembayaran
+      tags:
+      - finance
+      x-auth: user
+      x-roles:
+      - FINANCE_MANAGER
+      - AR_STAFF
+      x-consumers: []
+      parameters:
+      - name: invoice_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: INV-2026-000002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                bank_reference:
+                  type: string
+              required:
+              - amount
+              - bank_reference
+            example:
+              amount: 610500
+              bank_reference: VA-8808000000002-20261125
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoice_no:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - PARTIALLY_PAID
+                    - PAID
+                  journal_posted:
+                    type: string
+                required:
+                - invoice_no
+                - status
+                - journal_posted
+              example:
+                invoice_no: INV-2026-000002
+                status: PAID
+                journal_posted: AR-PAY
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/customers/{customer_code}/invoices:
+    get:
+      operationId: listCustomerInvoices
+      summary: Invoice pelanggan untuk portal CRM
+      tags:
+      - finance
+      x-auth: service
+      x-scope: invoices:read
+      x-consumers:
+      - crm
+      parameters:
+      - name: customer_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: CUS-000456
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    invoice_no:
+                      type: string
+                    order_no:
+                      type: string
+                    subtotal:
+                      type: integer
+                    tax_amount:
+                      type: integer
+                    total:
+                      type: integer
+                    paid_amount:
+                      type: integer
+                    virtual_account:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                      - DRAFT
+                      - ISSUED
+                      - PARTIALLY_PAID
+                      - PAID
+                      - OVERDUE
+                      - VOID
+                      - CREDITED
+                  required:
+                  - invoice_no
+                  - order_no
+                  - subtotal
+                  - tax_amount
+                  - total
+                  - paid_amount
+                  - virtual_account
+                  - status
+              example:
+              - invoice_no: INV-2026-000002
+                order_no: ORD-2026-000125
+                subtotal: 550000
+                tax_amount: 60500
+                total: 610500
+                paid_amount: 0
+                virtual_account: '8808000000002'
+                status: ISSUED
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/budgets/check:
+    post:
+      operationId: checkBudget
+      summary: Cek sisa anggaran pusat biaya
+      tags:
+      - finance
+      x-auth: service
+      x-scope: budgets:check
+      x-consumers:
+      - scm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cost_center_code:
+                  type: string
+                amount:
+                  type: integer
+                fiscal_year:
+                  type: integer
+              required:
+              - cost_center_code
+              - amount
+              - fiscal_year
+            example:
+              cost_center_code: CC-SCM
+              amount: 35000000
+              fiscal_year: 2026
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cost_center_code:
+                    type: string
+                  requested:
+                    type: integer
+                  remaining:
+                    type: integer
+                  approved:
+                    type: boolean
+                required:
+                - cost_center_code
+                - requested
+                - remaining
+                - approved
+              example:
+                cost_center_code: CC-SCM
+                requested: 35000000
+                remaining: 215000000
+                approved: true
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/reports/trial-balance:
+    get:
+      operationId: trialBalance
+      summary: Neraca saldo
+      tags:
+      - finance
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - FINANCE_MANAGER
+      - ACCOUNTANT
+      - AR_STAFF
+      - AP_STAFF
+      x-consumers: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_debit:
+                    type: integer
+                  total_credit:
+                    type: integer
+                  is_balanced:
+                    type: boolean
+                  accounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        account_code:
+                          type: string
+                        account_name:
+                          type: string
+                        account_type:
+                          type: string
+                        debit:
+                          type: integer
+                        credit:
+                          type: integer
+                      required:
+                      - account_code
+                      - account_name
+                      - account_type
+                      - debit
+                      - credit
+                required:
+                - total_debit
+                - total_credit
+                - is_balanced
+                - accounts
+              example:
+                total_debit: 1010222
+                total_credit: 1010222
+                is_balanced: true
+                accounts:
+                - account_code: '1100'
+                  account_name: Kas dan bank
+                  account_type: ASSET
+                  debit: 610500
+                  credit: 0
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/dashboard/summary:
+    get:
+      operationId: financeDashboardSummary
+      summary: Rekap dashboard Finance
+      tags:
+      - finance
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - FINANCE_MANAGER
+      - ACCOUNTANT
+      - AR_STAFF
+      - AP_STAFF
+      x-consumers: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kpis:
+                    type: object
+                    properties:
+                      cash_balance_idr:
+                        type: integer
+                      total_revenue_idr:
+                        type: integer
+                      outstanding_ar_idr:
+                        type: integer
+                      outstanding_ap_idr:
+                        type: integer
+                      trial_balance_balanced:
+                        type: boolean
+                    required:
+                    - cash_balance_idr
+                    - total_revenue_idr
+                    - outstanding_ar_idr
+                    - outstanding_ap_idr
+                    - trial_balance_balanced
+                  invoices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        invoice_no:
+                          type: string
+                        order_no:
+                          type: string
+                        subtotal:
+                          type: integer
+                        tax_amount:
+                          type: integer
+                        total:
+                          type: integer
+                        paid_amount:
+                          type: integer
+                        virtual_account:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                          - DRAFT
+                          - ISSUED
+                          - PARTIALLY_PAID
+                          - PAID
+                          - OVERDUE
+                          - VOID
+                          - CREDITED
+                      required:
+                      - invoice_no
+                      - order_no
+                      - subtotal
+                      - tax_amount
+                      - total
+                      - paid_amount
+                      - virtual_account
+                      - status
+                required:
+                - kpis
+                - invoices
+              example:
+                kpis:
+                  cash_balance_idr: 610500
+                  total_revenue_idr: 550000
+                  outstanding_ar_idr: 0
+                  outstanding_ap_idr: 38850000
+                  trial_balance_balanced: true
+                invoices:
+                - invoice_no: INV-2026-000002
+                  order_no: ORD-2026-000125
+                  subtotal: 550000
+                  tax_amount: 60500
+                  total: 610500
+                  paid_amount: 0
+                  virtual_account: '8808000000002'
+                  status: ISSUED
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: Format galat baku
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                  details:
+                    type: object
+                    properties:
+                      sku:
+                        type: string
+                      requested:
+                        type: integer
+                      available:
+                        type: integer
+                    required:
+                    - sku
+                    - requested
+                    - available
+                  correlation_id:
+                    type: string
+                required:
+                - code
+                - message
+                - details
+            required:
+            - error
+          example:
+            error:
+              code: INSUFFICIENT_STOCK
+              message: Stok ONT-01 di gudang Bandung tidak cukup
+              details:
+                sku: ONT-01
+                requested: 1
+                available: 0
+              correlation_id: ORD-2026-000123

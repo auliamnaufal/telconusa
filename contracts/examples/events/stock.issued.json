@@ -1,0 +1,30 @@
+{
+  "event_id": "evt_3524B1403BE0",
+  "event_type": "stock.issued",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "stock_request_no": "SR-2026-000001",
+    "ticket_code": "TKT-000001",
+    "technician_employee_id": "EMP-0042",
+    "issued_by": "EMP-0020",
+    "lines": [
+      {
+        "item_sku": "ONT-01",
+        "qty": 1,
+        "unit": "UNIT",
+        "serial_numbers": [
+          "SN-ONT-2026-000010"
+        ]
+      },
+      {
+        "item_sku": "CBL-FO",
+        "qty": 50,
+        "unit": "METER"
+      }
+    ],
+    "issued_at": "2026-11-25T10:00:00+07:00"
+  }
+}

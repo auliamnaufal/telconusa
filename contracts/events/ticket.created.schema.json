@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ticket.created",
+  "title": "ticket.created",
+  "description": "Tiket baru (pemasangan, maintenance, keluhan) dibuat; membawa daftar barang yang dibutuhkan.",
+  "x-publisher": "crm",
+  "x-consumers": [
+    "scm"
+  ],
+  "type": "object",
+  "properties": {
+    "ticket_code": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "INSTALLATION",
+        "MAINTENANCE",
+        "COMPLAINT"
+      ]
+    },
+    "order_no": {
+      "type": "string"
+    },
+    "subscription_code": {
+      "type": "string"
+    },
+    "customer_code": {
+      "type": "string"
+    },
+    "install_address": {
+      "type": "object",
+      "properties": {
+        "address_code": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "city_code": {
+          "type": "string",
+          "enum": [
+            "JKT",
+            "BDG",
+            "SBY"
+          ]
+        },
+        "postal_code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "address_code",
+        "address",
+        "city_code",
+        "postal_code"
+      ]
+    },
+    "recipient": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "whatsapp": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "whatsapp"
+      ]
+    },
+    "required_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_sku": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "integer"
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_sku",
+          "qty",
+          "unit"
+        ]
+      }
+    }
+  },
+  "required": [
+    "ticket_code",
+    "type",
+    "subscription_code",
+    "customer_code",
+    "install_address",
+    "recipient",
+    "required_items"
+  ]
+}

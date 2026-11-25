@@ -1,0 +1,24 @@
+{
+  "event_id": "evt_CFD2DE216A2C",
+  "event_type": "stock.returned",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "stock_request_no": "SR-2026-000001",
+    "ticket_code": "TKT-000001",
+    "status": "RETURNED",
+    "lines": [
+      {
+        "item_sku": "CBL-FO",
+        "issued": 50,
+        "used": 30,
+        "returned": 20,
+        "damaged": 0
+      }
+    ],
+    "has_discrepancy": false,
+    "returned_at": "2026-11-25T10:00:00+07:00"
+  }
+}

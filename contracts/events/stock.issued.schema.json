@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stock.issued",
+  "title": "stock.issued",
+  "description": "Staf SCM mengeluarkan barang ke teknisi; status barang menjadi WITH_TECHNICIAN.",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "stock_request_no": {
+      "type": "string"
+    },
+    "ticket_code": {
+      "type": "string"
+    },
+    "technician_employee_id": {
+      "type": "string"
+    },
+    "issued_by": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_sku": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "integer"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "serial_numbers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "item_sku",
+          "qty",
+          "unit"
+        ]
+      }
+    },
+    "issued_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "stock_request_no",
+    "ticket_code",
+    "technician_employee_id",
+    "issued_by",
+    "lines",
+    "issued_at"
+  ]
+}

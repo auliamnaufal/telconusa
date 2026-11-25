@@ -1,0 +1,726 @@
+openapi: 3.0.3
+info:
+  title: TelcoNusa SCM API
+  version: 1.0.0
+  description: Kontrak API milik track scm. Hanya endpoint yang dipakai alur demo atau dipanggil track lain. Setiap
+    operasi menyatakan x-auth (public|user|service), x-roles atau x-scope, dan x-consumers. Perubahan lewat PR yang
+    direview track terdampak.
+servers:
+- url: http://localhost:8003
+paths:
+  /api/v1/stock/{sku}:
+    get:
+      operationId: getStock
+      summary: Ketersediaan stok (indikatif untuk CRM)
+      tags:
+      - scm
+      x-auth: service
+      x-scope: stock:read
+      x-consumers:
+      - crm
+      parameters:
+      - name: sku
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ONT-01
+      - name: warehouse_code
+        in: query
+        required: false
+        schema:
+          type: string
+        example: WH-BDG
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sku:
+                    type: string
+                  name:
+                    type: string
+                  unit:
+                    type: string
+                  qty_available:
+                    type: integer
+                  reorder_point:
+                    type: integer
+                  below_rop:
+                    type: boolean
+                required:
+                - sku
+                - name
+                - unit
+                - qty_available
+                - reorder_point
+                - below_rop
+              example:
+                sku: ONT-01
+                name: Modem ONT
+                unit: UNIT
+                qty_available: 100
+                reorder_point: 380
+                below_rop: true
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/package-kits/{sku}:
+    get:
+      operationId: getPackageKit
+      summary: Daftar barang yang dibutuhkan satu paket layanan
+      tags:
+      - scm
+      x-auth: service
+      x-scope: packagekits:read
+      x-consumers:
+      - crm
+      parameters:
+      - name: sku
+        in: path
+        required: true
+        schema:
+          type: string
+        example: HOME-50
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_sku:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        name:
+                          type: string
+                        qty:
+                          type: integer
+                        unit:
+                          type: string
+                      required:
+                      - item_sku
+                      - name
+                      - qty
+                      - unit
+                required:
+                - service_sku
+                - items
+              example:
+                service_sku: HOME-50
+                items:
+                - item_sku: ONT-01
+                  name: Modem ONT
+                  qty: 1
+                  unit: UNIT
+                - item_sku: CBL-FO
+                  name: Kabel fiber
+                  qty: 50
+                  unit: METER
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/stock-requests:
+    get:
+      operationId: listStockRequests
+      summary: Daftar permintaan barang dari tiket
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+        example: READY_TO_ISSUE
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    stock_request_no:
+                      type: string
+                    ticket_code:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                      - REQUESTED
+                      - PENDING_STOCK
+                      - READY_TO_ISSUE
+                      - ISSUED
+                      - RETURNED
+                      - CANCELLED
+                    technician_employee_id:
+                      type: string
+                    city_code:
+                      type: string
+                    return_pending:
+                      type: boolean
+                  required:
+                  - stock_request_no
+                  - ticket_code
+                  - status
+                  - city_code
+                  - return_pending
+              example:
+              - stock_request_no: SR-2026-000001
+                ticket_code: TKT-000001
+                status: READY_TO_ISSUE
+                technician_employee_id: EMP-0042
+                city_code: BDG
+                return_pending: false
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/stock-requests/{stock_request_no}:
+    get:
+      operationId: getStockRequest
+      summary: Detail permintaan barang
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      parameters:
+      - name: stock_request_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: SR-2026-000001
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stock_request_no:
+                    type: string
+                  ticket_code:
+                    type: string
+                  status:
+                    type: string
+                  technician_employee_id:
+                    type: string
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty_required:
+                          type: integer
+                        qty_issued:
+                          type: integer
+                        qty_used:
+                          type: integer
+                        qty_returned:
+                          type: integer
+                        qty_damaged:
+                          type: integer
+                        unit:
+                          type: string
+                      required:
+                      - item_sku
+                      - qty_required
+                      - qty_issued
+                      - qty_used
+                      - qty_returned
+                      - qty_damaged
+                      - unit
+                  return_pending:
+                    type: boolean
+                  purchase_request_no:
+                    type: string
+                required:
+                - stock_request_no
+                - ticket_code
+                - status
+                - lines
+                - return_pending
+              example:
+                stock_request_no: SR-2026-000001
+                ticket_code: TKT-000001
+                status: ISSUED
+                technician_employee_id: EMP-0042
+                lines:
+                - item_sku: ONT-01
+                  qty_required: 1
+                  qty_issued: 1
+                  qty_used: 1
+                  qty_returned: 0
+                  qty_damaged: 0
+                  unit: UNIT
+                - item_sku: CBL-FO
+                  qty_required: 50
+                  qty_issued: 50
+                  qty_used: 30
+                  qty_returned: 20
+                  qty_damaged: 0
+                  unit: METER
+                return_pending: true
+                purchase_request_no: PR-2026-0001
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/stock-requests/{stock_request_no}/issue:
+    post:
+      operationId: issueStockRequest
+      summary: Staf SCM mengeluarkan paket barang ke teknisi
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      parameters:
+      - name: stock_request_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: SR-2026-000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lines:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      item_sku:
+                        type: string
+                      qty:
+                        type: integer
+                      serial_numbers:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - item_sku
+                    - qty
+              required:
+              - lines
+            example:
+              lines:
+              - item_sku: ONT-01
+                qty: 1
+                serial_numbers:
+                - SN-ONT-2026-000010
+              - item_sku: CBL-FO
+                qty: 50
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stock_request_no:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - ISSUED
+                  unit_status:
+                    type: string
+                required:
+                - stock_request_no
+                - status
+                - unit_status
+              example:
+                stock_request_no: SR-2026-000001
+                status: ISSUED
+                unit_status: WITH_TECHNICIAN
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/stock-requests/{stock_request_no}/issue-extra:
+    post:
+      operationId: issueExtraItems
+      summary: Tambah barang di luar paket untuk tiket yang sama
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      parameters:
+      - name: stock_request_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: SR-2026-000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lines:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      item_sku:
+                        type: string
+                      qty:
+                        type: integer
+                    required:
+                    - item_sku
+                    - qty
+              required:
+              - lines
+            example:
+              lines:
+              - item_sku: RTR-AX
+                qty: 1
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stock_request_no:
+                    type: string
+                  status:
+                    type: string
+                  lines_added:
+                    type: integer
+                required:
+                - stock_request_no
+                - status
+                - lines_added
+              example:
+                stock_request_no: SR-2026-000001
+                status: ISSUED
+                lines_added: 1
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/stock-requests/{stock_request_no}/flag-damaged:
+    post:
+      operationId: flagDamagedItem
+      summary: Tandai barang rusak
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      parameters:
+      - name: stock_request_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: SR-2026-000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item_sku:
+                  type: string
+                qty:
+                  type: integer
+                serial_number:
+                  type: string
+                notes:
+                  type: string
+              required:
+              - item_sku
+              - qty
+            example:
+              item_sku: RTR-AX
+              qty: 1
+              serial_number: SN-RTR-2026-000003
+              notes: Port LAN mati
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stock_request_no:
+                    type: string
+                  item_sku:
+                    type: string
+                  qty_damaged:
+                    type: integer
+                required:
+                - stock_request_no
+                - item_sku
+                - qty_damaged
+              example:
+                stock_request_no: SR-2026-000001
+                item_sku: RTR-AX
+                qty_damaged: 1
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/purchase-orders:
+    post:
+      operationId: createPurchaseOrder
+      summary: Pengadaan barang ke vendor (dipicu stok kurang)
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vendor_code:
+                  type: string
+                item_sku:
+                  type: string
+                qty:
+                  type: integer
+              required:
+              - vendor_code
+              - item_sku
+              - qty
+            example:
+              vendor_code: VEN-0001
+              item_sku: ONT-01
+              qty: 100
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  po_no:
+                    type: string
+                  total_amount:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - DRAFT
+                    - PENDING_APPROVAL
+                    - APPROVED
+                  budget_remaining_after_check:
+                    type: integer
+                required:
+                - po_no
+                - total_amount
+                - status
+                - budget_remaining_after_check
+              example:
+                po_no: PO-2026-0002
+                total_amount: 35000000
+                status: APPROVED
+                budget_remaining_after_check: 215000000
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/dashboard/summary:
+    get:
+      operationId: scmDashboardSummary
+      summary: Rekap dashboard SCM
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kpis:
+                    type: object
+                    properties:
+                      total_skus:
+                        type: integer
+                      inventory_valuation_idr:
+                        type: integer
+                      open_stock_requests:
+                        type: integer
+                      return_pending:
+                        type: integer
+                    required:
+                    - total_skus
+                    - inventory_valuation_idr
+                    - open_stock_requests
+                    - return_pending
+                  stock_requests:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        stock_request_no:
+                          type: string
+                        ticket_code:
+                          type: string
+                        status:
+                          type: string
+                      required:
+                      - stock_request_no
+                      - ticket_code
+                      - status
+                required:
+                - kpis
+                - stock_requests
+              example:
+                kpis:
+                  total_skus: 4
+                  inventory_valuation_idr: 120000000
+                  open_stock_requests: 2
+                  return_pending: 1
+                stock_requests:
+                - stock_request_no: SR-2026-000001
+                  ticket_code: TKT-000001
+                  status: ISSUED
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: Format galat baku
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                  details:
+                    type: object
+                    properties:
+                      sku:
+                        type: string
+                      requested:
+                        type: integer
+                      available:
+                        type: integer
+                    required:
+                    - sku
+                    - requested
+                    - available
+                  correlation_id:
+                    type: string
+                required:
+                - code
+                - message
+                - details
+            required:
+            - error
+          example:
+            error:
+              code: INSUFFICIENT_STOCK
+              message: Stok ONT-01 di gudang Bandung tidak cukup
+              details:
+                sku: ONT-01
+                requested: 1
+                available: 0
+              correlation_id: ORD-2026-000123

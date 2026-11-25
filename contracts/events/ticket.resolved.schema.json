@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ticket.resolved",
+  "title": "ticket.resolved",
+  "description": "Tiket selesai dengan bukti foto; teknisi kembali tersedia.",
+  "x-publisher": "crm",
+  "x-consumers": [
+    "hrm"
+  ],
+  "type": "object",
+  "properties": {
+    "ticket_code": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "INSTALLATION",
+        "MAINTENANCE",
+        "COMPLAINT"
+      ]
+    },
+    "subscription_code": {
+      "type": "string"
+    },
+    "technician_employee_id": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string"
+    },
+    "photo_count": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "ticket_code",
+    "type",
+    "subscription_code",
+    "technician_employee_id",
+    "resolved_at",
+    "photo_count"
+  ]
+}

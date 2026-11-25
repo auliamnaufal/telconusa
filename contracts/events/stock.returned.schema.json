@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stock.returned",
+  "title": "stock.returned",
+  "description": "SCM memperbarui persediaan dari laporan teknisi dan menandai selisih bila ada.",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "stock_request_no": {
+      "type": "string"
+    },
+    "ticket_code": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "RETURNED"
+      ]
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_sku": {
+            "type": "string"
+          },
+          "issued": {
+            "type": "integer"
+          },
+          "used": {
+            "type": "integer"
+          },
+          "returned": {
+            "type": "integer"
+          },
+          "damaged": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_sku",
+          "issued",
+          "used",
+          "returned",
+          "damaged"
+        ]
+      }
+    },
+    "has_discrepancy": {
+      "type": "boolean"
+    },
+    "returned_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "stock_request_no",
+    "ticket_code",
+    "status",
+    "lines",
+    "has_discrepancy",
+    "returned_at"
+  ]
+}

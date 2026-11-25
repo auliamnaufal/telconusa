@@ -1,0 +1,17 @@
+{
+  "event_id": "evt_C8037C1F18F6",
+  "event_type": "invoice.issued",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "finance",
+  "correlation_id": "ORD-2026-000125",
+  "data": {
+    "invoice_no": "INV-2026-000002",
+    "order_no": "ORD-2026-000125",
+    "subtotal": 550000,
+    "tax_amount": 60500,
+    "total": 610500,
+    "virtual_account": "8808000000002",
+    "issued_at": "2026-11-25T10:00:00+07:00"
+  }
+}

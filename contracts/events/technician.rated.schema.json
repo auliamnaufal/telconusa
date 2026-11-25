@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "technician.rated",
+  "title": "technician.rated",
+  "description": "Pelanggan memberi rating teknisi setelah tiket selesai.",
+  "x-publisher": "crm",
+  "x-consumers": [
+    "hrm"
+  ],
+  "type": "object",
+  "properties": {
+    "ticket_code": {
+      "type": "string"
+    },
+    "technician_employee_id": {
+      "type": "string"
+    },
+    "rating_score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "rating_comment": {
+      "type": "string"
+    },
+    "rated_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ticket_code",
+    "technician_employee_id",
+    "rating_score",
+    "rated_at"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "event_id": "evt_1064799635DE",
+  "event_type": "technician.rated",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "crm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "ticket_code": "TKT-000001",
+    "technician_employee_id": "EMP-0042",
+    "rating_score": 5,
+    "rating_comment": "Rapi dan ramah",
+    "rated_at": "2026-11-25T10:00:00+07:00"
+  }
+}

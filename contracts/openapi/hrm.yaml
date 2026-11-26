@@ -1,0 +1,440 @@
+openapi: 3.0.3
+info:
+  title: TelcoNusa HRM API
+  version: 1.0.0
+  description: Kontrak API milik track hrm. Hanya endpoint yang dipakai alur demo atau dipanggil track lain. Setiap
+    operasi menyatakan x-auth (public|user|service), x-roles atau x-scope, dan x-consumers. Perubahan lewat PR yang
+    direview track terdampak.
+servers:
+- url: http://localhost:8002
+paths:
+  /api/v1/auth/login:
+    post:
+      operationId: employeeLogin
+      summary: Login karyawan (akun dibuat oleh HR)
+      tags:
+      - hrm
+      x-auth: public
+      x-consumers: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+              - email
+              - password
+            example:
+              email: rina@telconusa.id
+              password: telconusa123
+      security: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      role:
+                        type: string
+                      department:
+                        type: string
+                      city_code:
+                        type: string
+                    required:
+                    - code
+                    - name
+                    - email
+                    - role
+                    - department
+                    - city_code
+                required:
+                - access_token
+                - token_type
+                - user
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9.example.signature
+                token_type: bearer
+                user:
+                  code: EMP-0042
+                  name: Rina Kartika
+                  email: rina@telconusa.id
+                  role: TECHNICIAN
+                  department: DEP-OPS
+                  city_code: BDG
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/auth/me:
+    get:
+      operationId: employeeMe
+      summary: Profil dari token
+      tags:
+      - hrm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - CRM_MANAGER
+      - CS_AGENT
+      - MARKETING
+      - SALES_EXEC
+      - SALES_MANAGER
+      - TECHNICIAN
+      - HR_MANAGER
+      - HR_STAFF
+      - PAYROLL_STAFF
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      - FINANCE_MANAGER
+      - ACCOUNTANT
+      - AR_STAFF
+      - AP_STAFF
+      x-consumers: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      role:
+                        type: string
+                      department:
+                        type: string
+                      city_code:
+                        type: string
+                    required:
+                    - code
+                    - name
+                    - email
+                    - role
+                    - department
+                    - city_code
+                required:
+                - user
+              example:
+                user:
+                  code: EMP-0042
+                  name: Rina Kartika
+                  email: rina@telconusa.id
+                  role: TECHNICIAN
+                  department: DEP-OPS
+                  city_code: BDG
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/employees/available:
+    get:
+      operationId: listAvailableEmployees
+      summary: Karyawan yang siap ditugaskan
+      tags:
+      - hrm
+      x-auth: service
+      x-scope: employees:read
+      x-consumers:
+      - crm
+      parameters:
+      - name: role
+        in: query
+        required: false
+        schema:
+          type: string
+        example: TECHNICIAN
+      - name: city_code
+        in: query
+        required: false
+        schema:
+          type: string
+        example: BDG
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    employee_code:
+                      type: string
+                    full_name:
+                      type: string
+                    city_code:
+                      type: string
+                    shift_name:
+                      type: string
+                    is_busy:
+                      type: boolean
+                    open_tickets:
+                      type: integer
+                    kpi_score:
+                      type: number
+                  required:
+                  - employee_code
+                  - full_name
+                  - city_code
+                  - shift_name
+                  - is_busy
+                  - open_tickets
+                  - kpi_score
+              example:
+              - employee_code: EMP-0042
+                full_name: Rina Kartika
+                city_code: BDG
+                shift_name: MORNING
+                is_busy: false
+                open_tickets: 1
+                kpi_score: 95.0
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/employees/{employee_code}:
+    get:
+      operationId: getEmployee
+      summary: Data dan status karyawan
+      tags:
+      - hrm
+      x-auth: service
+      x-scope: employees:read
+      x-consumers:
+      - crm
+      parameters:
+      - name: employee_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: EMP-0042
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  employee_code:
+                    type: string
+                  full_name:
+                    type: string
+                  role:
+                    type: string
+                  department_code:
+                    type: string
+                  cost_center_code:
+                    type: string
+                  city_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - ONBOARDING
+                    - PROBATION
+                    - ACTIVE
+                    - ON_LEAVE
+                    - SUSPENDED
+                    - RESIGNED
+                    - TERMINATED
+                required:
+                - employee_code
+                - full_name
+                - role
+                - department_code
+                - cost_center_code
+                - city_code
+                - status
+              example:
+                employee_code: EMP-0042
+                full_name: Rina Kartika
+                role: TECHNICIAN
+                department_code: DEP-OPS
+                cost_center_code: CC-OPS
+                city_code: BDG
+                status: ACTIVE
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/referrals/{code}:
+    get:
+      operationId: getReferral
+      summary: Validasi kode referral (hanya nama dan status)
+      tags:
+      - hrm
+      x-auth: public
+      x-consumers:
+      - crm
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: REF-EMP0017
+      security: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  employee_name:
+                    type: string
+                  is_active:
+                    type: boolean
+                required:
+                - code
+                - employee_name
+                - is_active
+              example:
+                code: REF-EMP0017
+                employee_name: Budi Santoso
+                is_active: true
+  /api/v1/referrals:
+    post:
+      operationId: createReferral
+      summary: HR membuat kode referral untuk staf marketing
+      tags:
+      - hrm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - HR_MANAGER
+      - HR_STAFF
+      x-consumers: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employee_code:
+                  type: string
+                custom_code:
+                  type: string
+              required:
+              - employee_code
+            example:
+              employee_code: EMP-0017
+              custom_code: NUSA-BUDI
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  employee_code:
+                    type: string
+                required:
+                - code
+                - employee_code
+              example:
+                code: REF-EMP0017
+                employee_code: EMP-0017
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: Format galat baku
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                  details:
+                    type: object
+                    properties:
+                      sku:
+                        type: string
+                      requested:
+                        type: integer
+                      available:
+                        type: integer
+                    required:
+                    - sku
+                    - requested
+                    - available
+                  correlation_id:
+                    type: string
+                required:
+                - code
+                - message
+                - details
+            required:
+            - error
+          example:
+            error:
+              code: INSUFFICIENT_STOCK
+              message: Stok ONT-01 di gudang Bandung tidak cukup
+              details:
+                sku: ONT-01
+                requested: 1
+                available: 0
+              correlation_id: ORD-2026-000123

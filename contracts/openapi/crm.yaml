@@ -1,0 +1,1881 @@
+openapi: 3.0.3
+info:
+  title: TelcoNusa CRM API
+  version: 1.0.0
+  description: Kontrak API milik track crm. Hanya endpoint yang dipakai alur demo atau dipanggil track lain. Setiap
+    operasi menyatakan x-auth (public|user|service), x-roles atau x-scope, dan x-consumers. Perubahan lewat PR yang
+    direview track terdampak.
+servers:
+- url: http://localhost:8001
+paths:
+  /api/v1/auth/register:
+    post:
+      operationId: customerRegister
+      summary: Registrasi akun pelanggan
+      tags:
+      - crm
+      x-auth: public
+      x-consumers: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                email:
+                  type: string
+                whatsapp_number:
+                  type: string
+                password:
+                  type: string
+                nik_or_npwp:
+                  type: string
+              required:
+              - full_name
+              - email
+              - whatsapp_number
+              - password
+            example:
+              full_name: Andi Pratama
+              email: andi@gmail.com
+              whatsapp_number: '6281234567890'
+              password: telconusa123
+              nik_or_npwp: '3273010101900001'
+      security: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      whatsapp_number:
+                        type: string
+                      role:
+                        type: string
+                    required:
+                    - code
+                    - name
+                    - email
+                    - whatsapp_number
+                    - role
+                required:
+                - access_token
+                - token_type
+                - user
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9.example.signature
+                token_type: bearer
+                user:
+                  code: CUS-000456
+                  name: Andi Pratama
+                  email: andi@gmail.com
+                  whatsapp_number: '6281234567890'
+                  role: CUSTOMER
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/auth/login:
+    post:
+      operationId: customerLogin
+      summary: Login pelanggan
+      tags:
+      - crm
+      x-auth: public
+      x-consumers: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+              - email
+              - password
+            example:
+              email: andi@gmail.com
+              password: telconusa123
+      security: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      whatsapp_number:
+                        type: string
+                      role:
+                        type: string
+                    required:
+                    - code
+                    - name
+                    - email
+                    - whatsapp_number
+                    - role
+                required:
+                - access_token
+                - token_type
+                - user
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9.example.signature
+                token_type: bearer
+                user:
+                  code: CUS-000456
+                  name: Andi Pratama
+                  email: andi@gmail.com
+                  whatsapp_number: '6281234567890'
+                  role: CUSTOMER
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/catalog:
+    get:
+      operationId: listCatalog
+      summary: Katalog paket layanan
+      tags:
+      - crm
+      x-auth: public
+      x-consumers: []
+      parameters:
+      - name: business_line
+        in: query
+        required: false
+        schema:
+          type: string
+        example: HOME
+      security: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sku:
+                      type: string
+                    name:
+                      type: string
+                    business_line:
+                      type: string
+                    unit_price:
+                      type: integer
+                    billing_cycle:
+                      type: string
+                    description:
+                      type: string
+                    speed_label:
+                      type: string
+                  required:
+                  - sku
+                  - name
+                  - business_line
+                  - unit_price
+                  - billing_cycle
+                  - description
+              example:
+              - sku: HOME-50
+                name: Internet Rumah 50 Mbps
+                business_line: HOME
+                unit_price: 400000
+                billing_cycle: MONTHLY
+                description: Fiber 50 Mbps
+                speed_label: 50 Mbps
+  /api/v1/coverage:
+    get:
+      operationId: checkCoverage
+      summary: Cek cakupan layanan berdasarkan kode pos
+      tags:
+      - crm
+      x-auth: public
+      x-consumers: []
+      parameters:
+      - name: postal_code
+        in: query
+        required: true
+        schema:
+          type: string
+        example: '40135'
+      security: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  postal_code:
+                    type: string
+                  is_covered:
+                    type: boolean
+                  city_code:
+                    type: string
+                  city_name:
+                    type: string
+                  district:
+                    type: string
+                required:
+                - postal_code
+                - is_covered
+                - city_code
+                - city_name
+                - district
+              example:
+                postal_code: '40135'
+                is_covered: true
+                city_code: BDG
+                city_name: Bandung
+                district: Coblong
+  /api/v1/orders:
+    post:
+      operationId: createOrder
+      summary: Pelanggan memesan paket (boleh untuk orang lain)
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - CUSTOMER
+      x-consumers: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipient:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    whatsapp:
+                      type: string
+                    email:
+                      type: string
+                  required:
+                  - name
+                  - whatsapp
+                install_address:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    city_code:
+                      type: string
+                    postal_code:
+                      type: string
+                  required:
+                  - address
+                  - city_code
+                  - postal_code
+                sku:
+                  type: string
+                referral_code:
+                  type: string
+              required:
+              - recipient
+              - install_address
+              - sku
+            example:
+              recipient:
+                name: Andi Pratama
+                whatsapp: '6281234567890'
+                email: andi@gmail.com
+              install_address:
+                address: Jl. Dago No. 12, Coblong
+                city_code: BDG
+                postal_code: '40135'
+              sku: HOME-50
+              referral_code: REF-EMP0017
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_no:
+                    type: string
+                  subscription_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - SUBMITTED
+                  subtotal:
+                    type: integer
+                  tax_amount:
+                    type: integer
+                  estimated_total_with_ppn:
+                    type: integer
+                required:
+                - order_no
+                - subscription_code
+                - status
+                - subtotal
+                - tax_amount
+                - estimated_total_with_ppn
+              example:
+                order_no: ORD-2026-000125
+                subscription_code: SUB-000012
+                status: SUBMITTED
+                subtotal: 550000
+                tax_amount: 60500
+                estimated_total_with_ppn: 610500
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/orders/{order_no}:
+    get:
+      operationId: getOrder
+      summary: Detail pesanan untuk layanan lain
+      tags:
+      - crm
+      x-auth: service
+      x-scope: orders:read
+      x-consumers:
+      - finance
+      parameters:
+      - name: order_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ORD-2026-000125
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_no:
+                    type: string
+                  customer_code:
+                    type: string
+                  subscription_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - SUBMITTED
+                    - AWAITING_PAYMENT
+                    - PAID
+                    - COMPLETED
+                    - CANCELLED
+                  sku:
+                    type: string
+                  business_line:
+                    type: string
+                  subtotal:
+                    type: integer
+                required:
+                - order_no
+                - customer_code
+                - subscription_code
+                - status
+                - sku
+                - business_line
+                - subtotal
+              example:
+                order_no: ORD-2026-000125
+                customer_code: CUS-000456
+                subscription_code: SUB-000012
+                status: AWAITING_PAYMENT
+                sku: HOME-50
+                business_line: HOME
+                subtotal: 550000
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/portal/me:
+    get:
+      operationId: getCustomerPortal
+      summary: 'Portal pelanggan: langganan, pesanan, tiket, invoice'
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - CUSTOMER
+      x-consumers: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    type: object
+                    properties:
+                      customer_code:
+                        type: string
+                      full_name:
+                        type: string
+                      email:
+                        type: string
+                      whatsapp_number:
+                        type: string
+                    required:
+                    - customer_code
+                    - full_name
+                    - email
+                    - whatsapp_number
+                  subscriptions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        subscription_code:
+                          type: string
+                        sku:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                          - PENDING
+                          - ACTIVE
+                          - SUSPENDED
+                          - TERMINATED
+                          - CANCELLED
+                        monthly_price:
+                          type: integer
+                        installation_label:
+                          type: string
+                          enum:
+                          - Menunggu penugasan
+                          - Sedang diproses
+                          - Selesai
+                        recipient_name:
+                          type: string
+                        install_address:
+                          type: string
+                      required:
+                      - subscription_code
+                      - sku
+                      - status
+                      - monthly_price
+                      - installation_label
+                      - recipient_name
+                      - install_address
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        order_no:
+                          type: string
+                        sku:
+                          type: string
+                        status:
+                          type: string
+                        subtotal:
+                          type: integer
+                      required:
+                      - order_no
+                      - sku
+                      - status
+                      - subtotal
+                  tickets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ticket_code:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                          - INSTALLATION
+                          - MAINTENANCE
+                          - COMPLAINT
+                        status:
+                          type: string
+                        installation_label:
+                          type: string
+                          enum:
+                          - Menunggu penugasan
+                          - Sedang diproses
+                          - Selesai
+                        materials_status:
+                          type: string
+                          enum:
+                          - NOT_REQUESTED
+                          - REQUESTED
+                          - READY_TO_ISSUE
+                          - PENDING_STOCK
+                          - ISSUED
+                          - RETURNED
+                        technician_name:
+                          type: string
+                      required:
+                      - ticket_code
+                      - type
+                      - status
+                      - installation_label
+                      - materials_status
+                  invoices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        invoice_no:
+                          type: string
+                        order_no:
+                          type: string
+                        subtotal:
+                          type: integer
+                        tax_amount:
+                          type: integer
+                        total:
+                          type: integer
+                        paid_amount:
+                          type: integer
+                        virtual_account:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                          - DRAFT
+                          - ISSUED
+                          - PARTIALLY_PAID
+                          - PAID
+                          - OVERDUE
+                          - VOID
+                          - CREDITED
+                      required:
+                      - invoice_no
+                      - order_no
+                      - subtotal
+                      - tax_amount
+                      - total
+                      - paid_amount
+                      - virtual_account
+                      - status
+                required:
+                - customer
+                - subscriptions
+                - orders
+                - tickets
+                - invoices
+              example:
+                customer:
+                  customer_code: CUS-000456
+                  full_name: Andi Pratama
+                  email: andi@gmail.com
+                  whatsapp_number: '6281234567890'
+                subscriptions:
+                - subscription_code: SUB-000012
+                  sku: HOME-50
+                  status: PENDING
+                  monthly_price: 400000
+                  installation_label: Sedang diproses
+                  recipient_name: Andi Pratama
+                  install_address: Jl. Dago No. 12, Coblong
+                orders:
+                - order_no: ORD-2026-000125
+                  sku: HOME-50
+                  status: AWAITING_PAYMENT
+                  subtotal: 550000
+                tickets:
+                - ticket_code: TKT-000001
+                  type: INSTALLATION
+                  status: ASSIGNED
+                  installation_label: Sedang diproses
+                  materials_status: READY_TO_ISSUE
+                  technician_name: Rina Kartika
+                invoices:
+                - invoice_no: INV-2026-000002
+                  order_no: ORD-2026-000125
+                  subtotal: 550000
+                  tax_amount: 60500
+                  total: 610500
+                  paid_amount: 0
+                  virtual_account: '8808000000002'
+                  status: ISSUED
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/tickets:
+    post:
+      operationId: createTicket
+      summary: Buat tiket maintenance atau keluhan (tiket pemasangan dibuat otomatis oleh CRM)
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - CUSTOMER
+      - CS_AGENT
+      - CRM_MANAGER
+      x-consumers: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subscription_code:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                  - MAINTENANCE
+                  - COMPLAINT
+                subject:
+                  type: string
+                description:
+                  type: string
+              required:
+              - subscription_code
+              - type
+              - subject
+              - description
+            example:
+              subscription_code: SUB-000012
+              type: COMPLAINT
+              subject: Internet putus
+              description: Lampu LOS merah sejak pagi.
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - OPEN
+                  type:
+                    type: string
+                required:
+                - ticket_code
+                - status
+                - type
+              example:
+                ticket_code: TKT-000002
+                status: OPEN
+                type: COMPLAINT
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+    get:
+      operationId: listTickets
+      summary: Daftar tiket untuk manajer CRM dan customer service
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - CRM_MANAGER
+      - CS_AGENT
+      x-consumers: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+        example: OPEN
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ticket_code:
+                      type: string
+                    type:
+                      type: string
+                      enum:
+                      - INSTALLATION
+                      - MAINTENANCE
+                      - COMPLAINT
+                    status:
+                      type: string
+                      enum:
+                      - OPEN
+                      - ASSIGNED
+                      - IN_PROGRESS
+                      - RESOLVED
+                      - REOPENED
+                      - CLOSED
+                      - CANCELLED
+                    installation_label:
+                      type: string
+                      enum:
+                      - Menunggu penugasan
+                      - Sedang diproses
+                      - Selesai
+                    subscription_code:
+                      type: string
+                    customer_name:
+                      type: string
+                    city_code:
+                      type: string
+                    technician_employee_id:
+                      type: string
+                    materials_status:
+                      type: string
+                      enum:
+                      - NOT_REQUESTED
+                      - REQUESTED
+                      - READY_TO_ISSUE
+                      - PENDING_STOCK
+                      - ISSUED
+                      - RETURNED
+                  required:
+                  - ticket_code
+                  - type
+                  - status
+                  - installation_label
+                  - subscription_code
+                  - customer_name
+                  - city_code
+                  - materials_status
+              example:
+              - ticket_code: TKT-000001
+                type: INSTALLATION
+                status: OPEN
+                installation_label: Sedang diproses
+                subscription_code: SUB-000012
+                customer_name: Andi Pratama
+                city_code: BDG
+                technician_employee_id: EMP-0042
+                materials_status: READY_TO_ISSUE
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/tickets/{ticket_code}:
+    get:
+      operationId: getTicket
+      summary: Detail tiket
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - CUSTOMER
+      - CS_AGENT
+      - CRM_MANAGER
+      - TECHNICIAN
+      - DIRECTOR
+      x-consumers: []
+      parameters:
+      - name: ticket_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TKT-000001
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket_code:
+                    type: string
+                  type:
+                    type: string
+                    enum:
+                    - INSTALLATION
+                    - MAINTENANCE
+                    - COMPLAINT
+                  status:
+                    type: string
+                    enum:
+                    - OPEN
+                    - ASSIGNED
+                    - IN_PROGRESS
+                    - RESOLVED
+                    - REOPENED
+                    - CLOSED
+                    - CANCELLED
+                  installation_label:
+                    type: string
+                    enum:
+                    - Menunggu penugasan
+                    - Sedang diproses
+                    - Selesai
+                  subscription_code:
+                    type: string
+                  customer_name:
+                    type: string
+                  city_code:
+                    type: string
+                  technician_employee_id:
+                    type: string
+                  materials_status:
+                    type: string
+                    enum:
+                    - NOT_REQUESTED
+                    - REQUESTED
+                    - READY_TO_ISSUE
+                    - PENDING_STOCK
+                    - ISSUED
+                    - RETURNED
+                  recipient:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      whatsapp:
+                        type: string
+                      email:
+                        type: string
+                    required:
+                    - name
+                    - whatsapp
+                  install_address:
+                    type: object
+                    properties:
+                      address_code:
+                        type: string
+                      address:
+                        type: string
+                      city_code:
+                        type: string
+                        enum:
+                        - JKT
+                        - BDG
+                        - SBY
+                      postal_code:
+                        type: string
+                    required:
+                    - address_code
+                    - address
+                    - city_code
+                    - postal_code
+                  required_items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                        unit:
+                          type: string
+                      required:
+                      - item_sku
+                      - qty
+                      - unit
+                  issued_items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                        unit:
+                          type: string
+                      required:
+                      - item_sku
+                      - qty
+                      - unit
+                  photos:
+                    type: array
+                    items:
+                      type: string
+                  site_profile:
+                    type: object
+                    properties:
+                      latitude:
+                        type: number
+                      longitude:
+                        type: number
+                      ont_serial_number:
+                        type: string
+                      signal_dbm:
+                        type: number
+                      speedtest_mbps:
+                        type: number
+                      site_condition_notes:
+                        type: string
+                    required:
+                    - latitude
+                    - longitude
+                    - ont_serial_number
+                    - signal_dbm
+                    - speedtest_mbps
+                    - site_condition_notes
+                required:
+                - ticket_code
+                - type
+                - status
+                - installation_label
+                - subscription_code
+                - customer_name
+                - city_code
+                - materials_status
+                - recipient
+                - install_address
+                - required_items
+                - issued_items
+                - photos
+              example:
+                ticket_code: TKT-000001
+                type: INSTALLATION
+                status: OPEN
+                installation_label: Sedang diproses
+                subscription_code: SUB-000012
+                customer_name: Andi Pratama
+                city_code: BDG
+                technician_employee_id: EMP-0042
+                materials_status: READY_TO_ISSUE
+                recipient:
+                  name: Andi Pratama
+                  whatsapp: '6281234567890'
+                  email: andi@gmail.com
+                install_address:
+                  address_code: ADR-000010
+                  address: Jl. Dago No. 12, Coblong
+                  city_code: BDG
+                  postal_code: '40135'
+                required_items:
+                - item_sku: ONT-01
+                  qty: 1
+                  unit: UNIT
+                - item_sku: CBL-FO
+                  qty: 50
+                  unit: METER
+                issued_items:
+                - item_sku: ONT-01
+                  qty: 1
+                  unit: UNIT
+                photos:
+                - uploads/TKT-000001/1.jpg
+                site_profile:
+                  latitude: -6.8842
+                  longitude: 107.6138
+                  ont_serial_number: SN-ONT-2026-000010
+                  signal_dbm: -18.5
+                  speedtest_mbps: 53.2
+                  site_condition_notes: Tiang ODP depan rumah, kabel rapi.
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/technicians/available:
+    get:
+      operationId: listAvailableTechnicians
+      summary: Teknisi yang tersedia untuk ditugaskan (diambil dari HRM)
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - CRM_MANAGER
+      - DIRECTOR
+      x-consumers: []
+      parameters:
+      - name: ticket_code
+        in: query
+        required: false
+        schema:
+          type: string
+        example: TKT-000001
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    employee_code:
+                      type: string
+                    full_name:
+                      type: string
+                    city_code:
+                      type: string
+                    shift_name:
+                      type: string
+                    open_tickets:
+                      type: integer
+                    kpi_score:
+                      type: number
+                  required:
+                  - employee_code
+                  - full_name
+                  - city_code
+                  - shift_name
+                  - open_tickets
+                  - kpi_score
+              example:
+              - employee_code: EMP-0042
+                full_name: Rina Kartika
+                city_code: BDG
+                shift_name: MORNING
+                open_tickets: 1
+                kpi_score: 95.0
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/tickets/{ticket_code}/assign:
+    post:
+      operationId: assignTicket
+      summary: Manajer CRM menugaskan teknisi
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - CRM_MANAGER
+      - DIRECTOR
+      x-consumers: []
+      parameters:
+      - name: ticket_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TKT-000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                technician_employee_id:
+                  type: string
+              required:
+              - technician_employee_id
+            example:
+              technician_employee_id: EMP-0042
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - ASSIGNED
+                  technician_employee_id:
+                    type: string
+                required:
+                - ticket_code
+                - status
+                - technician_employee_id
+              example:
+                ticket_code: TKT-000001
+                status: ASSIGNED
+                technician_employee_id: EMP-0042
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/technician/tickets:
+    get:
+      operationId: listMyTickets
+      summary: 'Dashboard teknisi: hanya tiket yang ditugaskan ke dirinya'
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - TECHNICIAN
+      x-consumers: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ticket_code:
+                      type: string
+                    type:
+                      type: string
+                      enum:
+                      - INSTALLATION
+                      - MAINTENANCE
+                      - COMPLAINT
+                    status:
+                      type: string
+                    recipient_name:
+                      type: string
+                    install_address:
+                      type: object
+                      properties:
+                        address_code:
+                          type: string
+                        address:
+                          type: string
+                        city_code:
+                          type: string
+                          enum:
+                          - JKT
+                          - BDG
+                          - SBY
+                        postal_code:
+                          type: string
+                      required:
+                      - address_code
+                      - address
+                      - city_code
+                      - postal_code
+                    materials_status:
+                      type: string
+                      enum:
+                      - NOT_REQUESTED
+                      - REQUESTED
+                      - READY_TO_ISSUE
+                      - PENDING_STOCK
+                      - ISSUED
+                      - RETURNED
+                    required_items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          item_sku:
+                            type: string
+                          qty:
+                            type: integer
+                          unit:
+                            type: string
+                        required:
+                        - item_sku
+                        - qty
+                        - unit
+                    issued_items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          item_sku:
+                            type: string
+                          qty:
+                            type: integer
+                          unit:
+                            type: string
+                        required:
+                        - item_sku
+                        - qty
+                        - unit
+                  required:
+                  - ticket_code
+                  - type
+                  - status
+                  - recipient_name
+                  - install_address
+                  - materials_status
+                  - required_items
+                  - issued_items
+              example:
+              - ticket_code: TKT-000001
+                type: INSTALLATION
+                status: ASSIGNED
+                recipient_name: Andi Pratama
+                install_address:
+                  address_code: ADR-000010
+                  address: Jl. Dago No. 12, Coblong
+                  city_code: BDG
+                  postal_code: '40135'
+                materials_status: READY_TO_ISSUE
+                required_items:
+                - item_sku: ONT-01
+                  qty: 1
+                  unit: UNIT
+                - item_sku: CBL-FO
+                  qty: 50
+                  unit: METER
+                issued_items:
+                - item_sku: ONT-01
+                  qty: 1
+                  unit: UNIT
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/tickets/{ticket_code}/start:
+    post:
+      operationId: startTicket
+      summary: Teknisi mulai mengerjakan tiket
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - TECHNICIAN
+      x-consumers: []
+      parameters:
+      - name: ticket_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TKT-000001
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - IN_PROGRESS
+                required:
+                - ticket_code
+                - status
+              example:
+                ticket_code: TKT-000001
+                status: IN_PROGRESS
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/tickets/{ticket_code}/photos:
+    post:
+      operationId: uploadTicketPhoto
+      summary: Unggah foto bukti pengerjaan
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - TECHNICIAN
+      x-consumers: []
+      parameters:
+      - name: ticket_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TKT-000001
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo_path:
+                    type: string
+                  photo_count:
+                    type: integer
+                required:
+                - photo_path
+                - photo_count
+              example:
+                photo_path: uploads/TKT-000001/1.jpg
+                photo_count: 1
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/tickets/{ticket_code}/items-report:
+    post:
+      operationId: reportTicketItems
+      summary: Teknisi melaporkan barang terpakai dan dikembalikan
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - TECHNICIAN
+      x-consumers: []
+      parameters:
+      - name: ticket_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TKT-000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lines:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      item_sku:
+                        type: string
+                      used:
+                        type: integer
+                      returned:
+                        type: integer
+                      serial_numbers_installed:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - item_sku
+                    - used
+                    - returned
+              required:
+              - lines
+            example:
+              lines:
+              - item_sku: ONT-01
+                used: 1
+                returned: 0
+                serial_numbers_installed:
+                - SN-ONT-2026-000010
+              - item_sku: CBL-FO
+                used: 30
+                returned: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket_code:
+                    type: string
+                  reported:
+                    type: boolean
+                required:
+                - ticket_code
+                - reported
+              example:
+                ticket_code: TKT-000001
+                reported: true
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/tickets/{ticket_code}/resolve:
+    post:
+      operationId: resolveTicket
+      summary: Teknisi menyelesaikan tiket (wajib minimal satu foto)
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - TECHNICIAN
+      x-consumers: []
+      parameters:
+      - name: ticket_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TKT-000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_profile:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                    longitude:
+                      type: number
+                    ont_serial_number:
+                      type: string
+                    signal_dbm:
+                      type: number
+                    speedtest_mbps:
+                      type: number
+                    site_condition_notes:
+                      type: string
+                  required:
+                  - latitude
+                  - longitude
+                  - ont_serial_number
+                  - signal_dbm
+                  - speedtest_mbps
+                  - site_condition_notes
+                resolution_notes:
+                  type: string
+              required:
+              - site_profile
+            example:
+              site_profile:
+                latitude: -6.8842
+                longitude: 107.6138
+                ont_serial_number: SN-ONT-2026-000010
+                signal_dbm: -18.5
+                speedtest_mbps: 53.2
+                site_condition_notes: Tiang ODP depan rumah, kabel rapi.
+              resolution_notes: Terpasang dan teruji
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - RESOLVED
+                  subscription_status:
+                    type: string
+                required:
+                - ticket_code
+                - status
+              example:
+                ticket_code: TKT-000001
+                status: RESOLVED
+                subscription_status: ACTIVE
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/tickets/{ticket_code}/rating:
+    post:
+      operationId: rateTechnician
+      summary: Pelanggan memberi rating teknisi
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - CUSTOMER
+      x-consumers: []
+      parameters:
+      - name: ticket_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TKT-000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating_score:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                rating_comment:
+                  type: string
+              required:
+              - rating_score
+            example:
+              rating_score: 5
+              rating_comment: Rapi dan ramah
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket_code:
+                    type: string
+                  rating_score:
+                    type: integer
+                required:
+                - ticket_code
+                - rating_score
+              example:
+                ticket_code: TKT-000001
+                rating_score: 5
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/subscriptions/{subscription_code}/site-profile:
+    get:
+      operationId: getSiteProfile
+      summary: Data lokasi dan kondisi pemasangan untuk maintenance
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - CRM_MANAGER
+      - CS_AGENT
+      - TECHNICIAN
+      - DIRECTOR
+      x-consumers: []
+      parameters:
+      - name: subscription_code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: SUB-000012
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscription_code:
+                    type: string
+                  install_address:
+                    type: object
+                    properties:
+                      address_code:
+                        type: string
+                      address:
+                        type: string
+                      city_code:
+                        type: string
+                        enum:
+                        - JKT
+                        - BDG
+                        - SBY
+                      postal_code:
+                        type: string
+                    required:
+                    - address_code
+                    - address
+                    - city_code
+                    - postal_code
+                  latitude:
+                    type: number
+                  longitude:
+                    type: number
+                  ont_serial_number:
+                    type: string
+                  signal_dbm:
+                    type: number
+                  speedtest_mbps:
+                    type: number
+                  site_condition_notes:
+                    type: string
+                  recorded_by:
+                    type: string
+                  recorded_at:
+                    type: string
+                required:
+                - subscription_code
+                - install_address
+                - latitude
+                - longitude
+                - ont_serial_number
+                - signal_dbm
+                - speedtest_mbps
+                - site_condition_notes
+                - recorded_by
+                - recorded_at
+              example:
+                subscription_code: SUB-000012
+                install_address:
+                  address_code: ADR-000010
+                  address: Jl. Dago No. 12, Coblong
+                  city_code: BDG
+                  postal_code: '40135'
+                latitude: -6.8842
+                longitude: 107.6138
+                ont_serial_number: SN-ONT-2026-000010
+                signal_dbm: -18.5
+                speedtest_mbps: 53.2
+                site_condition_notes: Tiang ODP depan rumah, kabel rapi.
+                recorded_by: EMP-0042
+                recorded_at: '2026-11-25T10:00:00+07:00'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/dashboard/summary:
+    get:
+      operationId: crmDashboardSummary
+      summary: Rekap dashboard manajer CRM
+      tags:
+      - crm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - CRM_MANAGER
+      - CS_AGENT
+      x-consumers: []
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kpis:
+                    type: object
+                    properties:
+                      total_customers:
+                        type: integer
+                      active_subscriptions:
+                        type: integer
+                      open_tickets:
+                        type: integer
+                      avg_technician_rating:
+                        type: number
+                    required:
+                    - total_customers
+                    - active_subscriptions
+                    - open_tickets
+                    - avg_technician_rating
+                  tickets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ticket_code:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                          - INSTALLATION
+                          - MAINTENANCE
+                          - COMPLAINT
+                        status:
+                          type: string
+                          enum:
+                          - OPEN
+                          - ASSIGNED
+                          - IN_PROGRESS
+                          - RESOLVED
+                          - REOPENED
+                          - CLOSED
+                          - CANCELLED
+                        installation_label:
+                          type: string
+                          enum:
+                          - Menunggu penugasan
+                          - Sedang diproses
+                          - Selesai
+                        subscription_code:
+                          type: string
+                        customer_name:
+                          type: string
+                        city_code:
+                          type: string
+                        technician_employee_id:
+                          type: string
+                        materials_status:
+                          type: string
+                          enum:
+                          - NOT_REQUESTED
+                          - REQUESTED
+                          - READY_TO_ISSUE
+                          - PENDING_STOCK
+                          - ISSUED
+                          - RETURNED
+                      required:
+                      - ticket_code
+                      - type
+                      - status
+                      - installation_label
+                      - subscription_code
+                      - customer_name
+                      - city_code
+                      - materials_status
+                required:
+                - kpis
+                - tickets
+              example:
+                kpis:
+                  total_customers: 12
+                  active_subscriptions: 8
+                  open_tickets: 3
+                  avg_technician_rating: 4.8
+                tickets:
+                - ticket_code: TKT-000001
+                  type: INSTALLATION
+                  status: OPEN
+                  installation_label: Sedang diproses
+                  subscription_code: SUB-000012
+                  customer_name: Andi Pratama
+                  city_code: BDG
+                  technician_employee_id: EMP-0042
+                  materials_status: READY_TO_ISSUE
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: Format galat baku
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+                  details:
+                    type: object
+                    properties:
+                      sku:
+                        type: string
+                      requested:
+                        type: integer
+                      available:
+                        type: integer
+                    required:
+                    - sku
+                    - requested
+                    - available
+                  correlation_id:
+                    type: string
+                required:
+                - code
+                - message
+                - details
+            required:
+            - error
+          example:
+            error:
+              code: INSUFFICIENT_STOCK
+              message: Stok ONT-01 di gudang Bandung tidak cukup
+              details:
+                sku: ONT-01
+                requested: 1
+                available: 0
+              correlation_id: ORD-2026-000123

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "referral.used",
+  "title": "referral.used",
+  "description": "Pelanggan memasukkan kode referral valid saat berlangganan; HRM mencatat pelanggan di bawah staf marketing.",
+  "x-publisher": "crm",
+  "x-consumers": [
+    "hrm"
+  ],
+  "type": "object",
+  "properties": {
+    "referral_code": {
+      "type": "string"
+    },
+    "order_no": {
+      "type": "string"
+    },
+    "subscription_code": {
+      "type": "string"
+    },
+    "customer_code": {
+      "type": "string"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "sales_employee_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "referral_code",
+    "order_no",
+    "subscription_code",
+    "customer_code",
+    "sku",
+    "sales_employee_id"
+  ]
+}

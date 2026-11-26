@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stockrequest.ready",
+  "title": "stockrequest.ready",
+  "description": "Stok untuk tiket tersedia dan siap dikeluarkan.",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "stock_request_no": {
+      "type": "string"
+    },
+    "ticket_code": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "READY_TO_ISSUE"
+      ]
+    }
+  },
+  "required": [
+    "stock_request_no",
+    "ticket_code",
+    "status"
+  ]
+}

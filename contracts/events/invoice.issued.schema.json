@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "invoice.issued",
+  "title": "invoice.issued",
+  "description": "Invoice sudah dikirim ke pelanggan oleh staf AR.",
+  "x-publisher": "finance",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "invoice_no": {
+      "type": "string"
+    },
+    "order_no": {
+      "type": "string"
+    },
+    "subtotal": {
+      "type": "integer"
+    },
+    "tax_amount": {
+      "type": "integer"
+    },
+    "total": {
+      "type": "integer"
+    },
+    "virtual_account": {
+      "type": "string"
+    },
+    "issued_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "invoice_no",
+    "order_no",
+    "subtotal",
+    "tax_amount",
+    "total",
+    "virtual_account",
+    "issued_at"
+  ]
+}

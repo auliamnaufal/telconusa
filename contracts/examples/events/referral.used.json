@@ -1,0 +1,16 @@
+{
+  "event_id": "evt_57E58A121B86",
+  "event_type": "referral.used",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "crm",
+  "correlation_id": "ORD-2026-000125",
+  "data": {
+    "referral_code": "REF-EMP0017",
+    "order_no": "ORD-2026-000125",
+    "subscription_code": "SUB-000012",
+    "customer_code": "CUS-000456",
+    "sku": "HOME-50",
+    "sales_employee_id": "EMP-0017"
+  }
+}

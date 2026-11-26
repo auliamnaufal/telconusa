@@ -1,0 +1,21 @@
+{
+  "event_id": "evt_06569B43B543",
+  "event_type": "stockrequest.pending",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "stock_request_no": "SR-2026-000001",
+    "ticket_code": "TKT-000001",
+    "status": "PENDING_STOCK",
+    "missing_items": [
+      {
+        "item_sku": "ONT-01",
+        "qty_short": 1
+      }
+    ],
+    "purchase_request_no": "PR-2026-0001",
+    "estimated_ready_date": "2026-12-05"
+  }
+}

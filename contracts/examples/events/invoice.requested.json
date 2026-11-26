@@ -1,0 +1,49 @@
+{
+  "event_id": "evt_6C0A26C83442",
+  "event_type": "invoice.requested",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "crm",
+  "correlation_id": "ORD-2026-000125",
+  "data": {
+    "order_no": "ORD-2026-000125",
+    "subscription_code": "SUB-000012",
+    "customer_code": "CUS-000456",
+    "business_line": "HOME",
+    "payer": {
+      "name": "Andi Pratama",
+      "whatsapp": "6281234567890",
+      "email": "andi@gmail.com"
+    },
+    "recipient": {
+      "name": "Andi Pratama",
+      "whatsapp": "6281234567890",
+      "email": "andi@gmail.com"
+    },
+    "install_address": {
+      "address_code": "ADR-000010",
+      "address": "Jl. Dago No. 12, Coblong",
+      "city_code": "BDG",
+      "postal_code": "40135"
+    },
+    "items": [
+      {
+        "sku": "HOME-50",
+        "qty": 1,
+        "unit_price": 400000,
+        "discount": 0
+      },
+      {
+        "sku": "SVC-INST-H",
+        "qty": 1,
+        "unit_price": 150000,
+        "discount": 0
+      }
+    ],
+    "subtotal": 550000,
+    "monthly_price": 400000,
+    "currency": "IDR",
+    "referral_code": "REF-EMP0017",
+    "sales_employee_id": "EMP-0017"
+  }
+}

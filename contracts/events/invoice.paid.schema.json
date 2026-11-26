@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "invoice.paid",
+  "title": "invoice.paid",
+  "description": "Pembayaran sudah dicek ulang dan dikonfirmasi oleh Finance.",
+  "x-publisher": "finance",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "invoice_no": {
+      "type": "string"
+    },
+    "order_no": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "integer"
+    },
+    "paid_at": {
+      "type": "string"
+    },
+    "verified_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "invoice_no",
+    "order_no",
+    "amount",
+    "paid_at",
+    "verified_by"
+  ]
+}

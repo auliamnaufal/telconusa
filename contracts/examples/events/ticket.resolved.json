@@ -1,0 +1,16 @@
+{
+  "event_id": "evt_68FAFAFA04A8",
+  "event_type": "ticket.resolved",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "crm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "ticket_code": "TKT-000001",
+    "type": "INSTALLATION",
+    "subscription_code": "SUB-000012",
+    "technician_employee_id": "EMP-0042",
+    "resolved_at": "2026-11-25T10:00:00+07:00",
+    "photo_count": 3
+  }
+}

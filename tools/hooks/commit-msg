@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Reject commit messages and identities that attribute the commit to a coding agent.
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+exec python3 "$repo_root/tools/check_agent_attribution.py" --message-file "$1"

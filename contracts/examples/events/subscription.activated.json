@@ -1,0 +1,18 @@
+{
+  "event_id": "evt_0C2C2664D98C",
+  "event_type": "subscription.activated",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "crm",
+  "correlation_id": "ORD-2026-000125",
+  "data": {
+    "subscription_code": "SUB-000012",
+    "customer_code": "CUS-000456",
+    "order_no": "ORD-2026-000125",
+    "sku": "HOME-50",
+    "business_line": "HOME",
+    "monthly_price": 400000,
+    "activated_at": "2026-11-25T10:00:00+07:00",
+    "referral_code": "REF-EMP0017"
+  }
+}

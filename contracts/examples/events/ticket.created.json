@@ -1,0 +1,38 @@
+{
+  "event_id": "evt_E51ED3AF8205",
+  "event_type": "ticket.created",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "crm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "ticket_code": "TKT-000001",
+    "type": "INSTALLATION",
+    "order_no": "ORD-2026-000125",
+    "subscription_code": "SUB-000012",
+    "customer_code": "CUS-000456",
+    "install_address": {
+      "address_code": "ADR-000010",
+      "address": "Jl. Dago No. 12, Coblong",
+      "city_code": "BDG",
+      "postal_code": "40135"
+    },
+    "recipient": {
+      "name": "Andi Pratama",
+      "whatsapp": "6281234567890",
+      "email": "andi@gmail.com"
+    },
+    "required_items": [
+      {
+        "item_sku": "ONT-01",
+        "qty": 1,
+        "unit": "UNIT"
+      },
+      {
+        "item_sku": "CBL-FO",
+        "qty": 50,
+        "unit": "METER"
+      }
+    ]
+  }
+}

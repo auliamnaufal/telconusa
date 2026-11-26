@@ -1,0 +1,29 @@
+{
+  "event_id": "evt_9E43D7EFAFFB",
+  "event_type": "ticket.items_reported",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "crm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "ticket_code": "TKT-000001",
+    "stock_request_no": "SR-2026-000001",
+    "reported_by": "EMP-0042",
+    "lines": [
+      {
+        "item_sku": "ONT-01",
+        "used": 1,
+        "returned": 0,
+        "serial_numbers_installed": [
+          "SN-ONT-2026-000010"
+        ]
+      },
+      {
+        "item_sku": "CBL-FO",
+        "used": 30,
+        "returned": 20
+      }
+    ],
+    "reported_at": "2026-11-25T10:00:00+07:00"
+  }
+}

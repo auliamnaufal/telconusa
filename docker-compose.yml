@@ -1,3 +1,18 @@
+# ==============================================================================
+# PT TelkoNusa Digital - Docker Compose
+#
+# Sebelum menjalankan, buat .env berisi secret dengan: tools/setup-env.sh
+#
+# Setiap kelompok cukup menjalankan service miliknya sendiri, dan memakai mock
+# (Prism, dari contracts/openapi) untuk service kelompok lain via profile "mock":
+#
+#   SCM_API_URL_INTERNAL=http://mock-scm:4010 \
+#     docker compose --profile mock up mysql crm-api mock-scm
+#
+# Variabel *_API_URL_INTERNAL (CRM, HRM, SCM, FINANCE) mengarahkan service ke
+# mock atau ke API sungguhan. Detail: mock/README.md
+# ==============================================================================
+
 services:
   mysql:
     image: mysql:8.0
@@ -18,22 +33,6 @@ services:
       timeout: 5s
       retries: 20
 
-  rabbitmq:
-    image: rabbitmq:3.13-management
-    container_name: telconusa-rabbitmq
-    restart: unless-stopped
-    environment:
-      RABBITMQ_DEFAULT_USER: telconusa
-      RABBITMQ_DEFAULT_PASS: telconusa123
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-
   # --- 4 Division FastAPI Backends ---
   crm-api:
     build: { context: ./services, dockerfile: crm-api/Dockerfile }
@@ -42,16 +41,14 @@ services:
     ports: ["8001:8001"]
     environment:
       DATABASE_URL: mysql+pymysql://telconusa:telconusa123@mysql:3306/telconusa_crm
-      JWT_SECRET: ${JWT_SECRET:-change-this-super-secret-jwt-key-in-production}
-      HMAC_WEBHOOK_SECRET: ${HMAC_WEBHOOK_SECRET:-change-this-hmac-webhook-secret}
-      EVENT_TRANSPORT: ${EVENT_TRANSPORT:-rabbitmq}
-      RABBITMQ_URL: amqp://telconusa:telconusa123@rabbitmq:5672/
-      HRM_API_URL: http://hrm-api:8002
-      SCM_API_URL: http://scm-api:8003
-      FINANCE_API_URL: http://finance-api:8004
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required - run tools/setup-env.sh}
+      HMAC_WEBHOOK_SECRET: ${HMAC_WEBHOOK_SECRET:?HMAC_WEBHOOK_SECRET is required - run tools/setup-env.sh}
+      EVENT_TRANSPORT: ${EVENT_TRANSPORT:-webhook}
+      HRM_API_URL: ${HRM_API_URL_INTERNAL:-http://hrm-api:8002}
+      SCM_API_URL: ${SCM_API_URL_INTERNAL:-http://scm-api:8003}
+      FINANCE_API_URL: ${FINANCE_API_URL_INTERNAL:-http://finance-api:8004}
     depends_on:
       mysql: { condition: service_healthy }
-      rabbitmq: { condition: service_healthy }
 
   hrm-api:
     build: { context: ./services, dockerfile: hrm-api/Dockerfile }
@@ -60,16 +57,14 @@ services:
     ports: ["8002:8002"]
     environment:
       DATABASE_URL: mysql+pymysql://telconusa:telconusa123@mysql:3306/telconusa_hrm
-      JWT_SECRET: ${JWT_SECRET:-change-this-super-secret-jwt-key-in-production}
-      HMAC_WEBHOOK_SECRET: ${HMAC_WEBHOOK_SECRET:-change-this-hmac-webhook-secret}
-      EVENT_TRANSPORT: ${EVENT_TRANSPORT:-rabbitmq}
-      RABBITMQ_URL: amqp://telconusa:telconusa123@rabbitmq:5672/
-      CRM_API_URL: http://crm-api:8001
-      SCM_API_URL: http://scm-api:8003
-      FINANCE_API_URL: http://finance-api:8004
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required - run tools/setup-env.sh}
+      HMAC_WEBHOOK_SECRET: ${HMAC_WEBHOOK_SECRET:?HMAC_WEBHOOK_SECRET is required - run tools/setup-env.sh}
+      EVENT_TRANSPORT: ${EVENT_TRANSPORT:-webhook}
+      CRM_API_URL: ${CRM_API_URL_INTERNAL:-http://crm-api:8001}
+      SCM_API_URL: ${SCM_API_URL_INTERNAL:-http://scm-api:8003}
+      FINANCE_API_URL: ${FINANCE_API_URL_INTERNAL:-http://finance-api:8004}
     depends_on:
       mysql: { condition: service_healthy }
-      rabbitmq: { condition: service_healthy }
 
   scm-api:
     build: { context: ./services, dockerfile: scm-api/Dockerfile }
@@ -78,16 +73,14 @@ services:
     ports: ["8003:8003"]
     environment:
       DATABASE_URL: mysql+pymysql://telconusa:telconusa123@mysql:3306/telconusa_scm
-      JWT_SECRET: ${JWT_SECRET:-change-this-super-secret-jwt-key-in-production}
-      HMAC_WEBHOOK_SECRET: ${HMAC_WEBHOOK_SECRET:-change-this-hmac-webhook-secret}
-      EVENT_TRANSPORT: ${EVENT_TRANSPORT:-rabbitmq}
-      RABBITMQ_URL: amqp://telconusa:telconusa123@rabbitmq:5672/
-      CRM_API_URL: http://crm-api:8001
-      HRM_API_URL: http://hrm-api:8002
-      FINANCE_API_URL: http://finance-api:8004
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required - run tools/setup-env.sh}
+      HMAC_WEBHOOK_SECRET: ${HMAC_WEBHOOK_SECRET:?HMAC_WEBHOOK_SECRET is required - run tools/setup-env.sh}
+      EVENT_TRANSPORT: ${EVENT_TRANSPORT:-webhook}
+      CRM_API_URL: ${CRM_API_URL_INTERNAL:-http://crm-api:8001}
+      HRM_API_URL: ${HRM_API_URL_INTERNAL:-http://hrm-api:8002}
+      FINANCE_API_URL: ${FINANCE_API_URL_INTERNAL:-http://finance-api:8004}
     depends_on:
       mysql: { condition: service_healthy }
-      rabbitmq: { condition: service_healthy }
 
   finance-api:
     build: { context: ./services, dockerfile: finance-api/Dockerfile }
@@ -96,16 +89,14 @@ services:
     ports: ["8004:8004"]
     environment:
       DATABASE_URL: mysql+pymysql://telconusa:telconusa123@mysql:3306/telconusa_finance
-      JWT_SECRET: ${JWT_SECRET:-change-this-super-secret-jwt-key-in-production}
-      HMAC_WEBHOOK_SECRET: ${HMAC_WEBHOOK_SECRET:-change-this-hmac-webhook-secret}
-      EVENT_TRANSPORT: ${EVENT_TRANSPORT:-rabbitmq}
-      RABBITMQ_URL: amqp://telconusa:telconusa123@rabbitmq:5672/
-      CRM_API_URL: http://crm-api:8001
-      HRM_API_URL: http://hrm-api:8002
-      SCM_API_URL: http://scm-api:8003
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required - run tools/setup-env.sh}
+      HMAC_WEBHOOK_SECRET: ${HMAC_WEBHOOK_SECRET:?HMAC_WEBHOOK_SECRET is required - run tools/setup-env.sh}
+      EVENT_TRANSPORT: ${EVENT_TRANSPORT:-webhook}
+      CRM_API_URL: ${CRM_API_URL_INTERNAL:-http://crm-api:8001}
+      HRM_API_URL: ${HRM_API_URL_INTERNAL:-http://hrm-api:8002}
+      SCM_API_URL: ${SCM_API_URL_INTERNAL:-http://scm-api:8003}
     depends_on:
       mysql: { condition: service_healthy }
-      rabbitmq: { condition: service_healthy }
 
   # --- Public Customer-Only Storefront & Self-Service (:3000) ---
   web:
@@ -162,6 +153,43 @@ services:
       NEXT_PUBLIC_HRM_API_URL: http://localhost:8002
       NEXT_PUBLIC_HRM_WEB_URL: http://localhost:3002
     depends_on: [finance-api, hrm-api]
+
+  # --- Mock server per track (hanya aktif dengan --profile mock) ---
+  mock-crm:
+    image: stoplight/prism:5
+    container_name: telconusa-mock-crm
+    profiles: ["mock"]
+    command: mock -h 0.0.0.0 -p 4010 /contracts/openapi/crm.yaml
+    volumes:
+      - ./contracts:/contracts:ro
+    ports: ["9001:4010"]
+
+  mock-hrm:
+    image: stoplight/prism:5
+    container_name: telconusa-mock-hrm
+    profiles: ["mock"]
+    command: mock -h 0.0.0.0 -p 4010 /contracts/openapi/hrm.yaml
+    volumes:
+      - ./contracts:/contracts:ro
+    ports: ["9002:4010"]
+
+  mock-scm:
+    image: stoplight/prism:5
+    container_name: telconusa-mock-scm
+    profiles: ["mock"]
+    command: mock -h 0.0.0.0 -p 4010 /contracts/openapi/scm.yaml
+    volumes:
+      - ./contracts:/contracts:ro
+    ports: ["9003:4010"]
+
+  mock-finance:
+    image: stoplight/prism:5
+    container_name: telconusa-mock-finance
+    profiles: ["mock"]
+    command: mock -h 0.0.0.0 -p 4010 /contracts/openapi/finance.yaml
+    volumes:
+      - ./contracts:/contracts:ro
+    ports: ["9004:4010"]
 
 volumes:
   mysql_data:

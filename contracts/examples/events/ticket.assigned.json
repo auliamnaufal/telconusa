@@ -1,0 +1,16 @@
+{
+  "event_id": "evt_AF06E81EB575",
+  "event_type": "ticket.assigned",
+  "version": 1,
+  "occurred_at": "2026-11-25T10:00:00+07:00",
+  "source": "crm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "ticket_code": "TKT-000001",
+    "subscription_code": "SUB-000012",
+    "technician_employee_id": "EMP-0042",
+    "assigned_by": "EMP-0010",
+    "city_code": "BDG",
+    "assigned_at": "2026-11-25T10:00:00+07:00"
+  }
+}

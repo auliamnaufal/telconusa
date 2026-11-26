@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ticket.assigned",
+  "title": "ticket.assigned",
+  "description": "Manajer CRM menugaskan teknisi ke tiket.",
+  "x-publisher": "crm",
+  "x-consumers": [
+    "hrm",
+    "scm"
+  ],
+  "type": "object",
+  "properties": {
+    "ticket_code": {
+      "type": "string"
+    },
+    "subscription_code": {
+      "type": "string"
+    },
+    "technician_employee_id": {
+      "type": "string"
+    },
+    "assigned_by": {
+      "type": "string"
+    },
+    "city_code": {
+      "type": "string",
+      "enum": [
+        "JKT",
+        "BDG",
+        "SBY"
+      ]
+    },
+    "assigned_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ticket_code",
+    "subscription_code",
+    "technician_employee_id",
+    "assigned_by",
+    "city_code",
+    "assigned_at"
+  ]
+}

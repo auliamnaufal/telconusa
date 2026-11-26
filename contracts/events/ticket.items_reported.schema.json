@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ticket.items_reported",
+  "title": "ticket.items_reported",
+  "description": "Teknisi melaporkan jumlah barang terpakai dan dikembalikan pada tiket.",
+  "x-publisher": "crm",
+  "x-consumers": [
+    "scm"
+  ],
+  "type": "object",
+  "properties": {
+    "ticket_code": {
+      "type": "string"
+    },
+    "stock_request_no": {
+      "type": "string"
+    },
+    "reported_by": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_sku": {
+            "type": "string"
+          },
+          "used": {
+            "type": "integer"
+          },
+          "returned": {
+            "type": "integer"
+          },
+          "serial_numbers_installed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "item_sku",
+          "used",
+          "returned"
+        ]
+      }
+    },
+    "reported_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ticket_code",
+    "stock_request_no",
+    "reported_by",
+    "lines",
+    "reported_at"
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "invoice.requested",
+  "title": "invoice.requested",
+  "description": "CRM meminta Finance menerbitkan invoice setelah pelanggan mengirim pesanan.",
+  "x-publisher": "crm",
+  "x-consumers": [
+    "finance"
+  ],
+  "type": "object",
+  "properties": {
+    "order_no": {
+      "type": "string"
+    },
+    "subscription_code": {
+      "type": "string"
+    },
+    "customer_code": {
+      "type": "string"
+    },
+    "business_line": {
+      "type": "string",
+      "enum": [
+        "PREPAID",
+        "POSTPAID",
+        "HOME",
+        "B2B"
+      ]
+    },
+    "payer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "whatsapp": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "whatsapp"
+      ]
+    },
+    "recipient": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "whatsapp": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "whatsapp"
+      ]
+    },
+    "install_address": {
+      "type": "object",
+      "properties": {
+        "address_code": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "city_code": {
+          "type": "string",
+          "enum": [
+            "JKT",
+            "BDG",
+            "SBY"
+          ]
+        },
+        "postal_code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "address_code",
+        "address",
+        "city_code",
+        "postal_code"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "integer"
+          },
+          "unit_price": {
+            "type": "integer"
+          },
+          "discount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sku",
+          "qty",
+          "unit_price",
+          "discount"
+        ]
+      }
+    },
+    "subtotal": {
+      "type": "integer"
+    },
+    "monthly_price": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "referral_code": {
+      "type": "string"
+    },
+    "sales_employee_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_no",
+    "subscription_code",
+    "customer_code",
+    "business_line",
+    "payer",
+    "recipient",
+    "install_address",
+    "items",
+    "subtotal",
+    "monthly_price",
+    "currency"
+  ]
+}

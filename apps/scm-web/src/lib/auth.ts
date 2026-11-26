@@ -14,7 +14,8 @@ export interface AuthUser {
 const TOKEN_KEY = "tn_scm_token";
 const USER_KEY = "tn_scm_user";
 
-export const SCM_ROLES = ["DIRECTOR", "SCM_MANAGER", "WAREHOUSE_STAFF", "PROCUREMENT_STAFF"];
+// FINANCE_MANAGER masuk untuk menyetujui PO (ADR-0002); menu yang tampil diatur di lib/roles.ts.
+export const SCM_ROLES = ["DIRECTOR", "SCM_MANAGER", "WAREHOUSE_STAFF", "PROCUREMENT_STAFF", "FINANCE_MANAGER"];
 
 export function saveAuth(token: string, user: AuthUser) {
   if (typeof window === "undefined") return;

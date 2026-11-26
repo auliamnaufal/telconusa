@@ -33,6 +33,12 @@ npm run dev      # http://localhost:3003
 npm run build    # wajib lulus sebelum PR
 ```
 
+Jika `next build` atau `next dev` gagal dengan `Cannot read properties of null (reading '1')` dari `next/font`, itu masalah pemuat font Next 15.1.6 terhadap Google Fonts (bukan kode Anda). Jalankan dengan jawaban font palsu:
+
+```bash
+NEXT_FONT_GOOGLE_MOCKED_RESPONSES=$PWD/scripts/font-mock.js npm run build
+```
+
 Jalankan API lokal: `docker compose up -d --build mysql scm-api`.
 
 ## Selesai

@@ -5,7 +5,7 @@ slice: 0
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "none"
 depends_on: [SCM-0-01]
 touches:
@@ -30,10 +30,10 @@ spec: "spec.md#10-layar-scm-web"
 
 ## Kriteria penerimaan
 
-- [ ] `npm run build` di `apps/scm-web` lulus.
-- [ ] Pengguna tanpa role SCM atau `DIRECTOR` dialihkan ke login.
-- [ ] Menu yang tampil sesuai role (`WAREHOUSE_STAFF` tidak melihat Procurement, `PROCUREMENT_STAFF` tidak melihat Assets dan Stock Requests).
-- [ ] Galat dari API tampil lewat `Toast` dengan `error.message`.
+- [x] `npm run build` di `apps/scm-web` lulus.
+- [x] Pengguna tanpa role SCM atau `DIRECTOR` dialihkan ke login.
+- [x] Menu yang tampil sesuai role (`PROCUREMENT_STAFF` tidak melihat Aset ONT dan Permintaan Barang; `WAREHOUSE_STAFF` tetap melihat Pengadaan untuk mencatat penerimaan barang; `FINANCE_MANAGER` hanya melihat Pengadaan).
+- [x] Galat dari API tampil lewat `Toast` dengan `error.message`.
 
 ## Tes
 
@@ -41,6 +41,6 @@ spec: "spec.md#10-layar-scm-web"
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

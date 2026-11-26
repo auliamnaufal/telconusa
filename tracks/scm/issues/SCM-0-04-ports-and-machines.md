@@ -5,7 +5,7 @@ slice: 0
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "none"
 depends_on: [SCM-0-01]
 touches:
@@ -33,9 +33,9 @@ Slice saling memanggil lewat antarmuka tetap, sehingga tidak ada yang menunggu i
 
 ## Kriteria penerimaan
 
-- [ ] Memanggil port tanpa implementasi gagal dengan pesan yang menyebut issue pemiliknya.
-- [ ] `ports.override` memulihkan implementasi semula setelah tes.
-- [ ] Mesin PR dan PO sesuai spec bagian 5.3 dan 5.4; transisi lain menjawab `409 INVALID_TRANSITION`.
+- [x] Memanggil port tanpa implementasi gagal dengan pesan yang menyebut issue pemiliknya.
+- [x] `ports.override` memulihkan implementasi semula setelah tes.
+- [x] Mesin PR dan PO sesuai spec bagian 5.3 dan 5.4; transisi lain menjawab `409 INVALID_TRANSITION`.
 
 ## Tes
 
@@ -43,6 +43,6 @@ Slice saling memanggil lewat antarmuka tetap, sehingga tidak ada yang menunggu i
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

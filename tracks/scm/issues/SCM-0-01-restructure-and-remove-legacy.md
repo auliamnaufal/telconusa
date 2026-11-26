@@ -5,7 +5,7 @@ slice: 0
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "none"
 depends_on: []
 touches:
@@ -29,10 +29,10 @@ spec: "spec.md#4-model-data; ADR-0003"
 
 ## Kriteria penerimaan
 
-- [ ] Aplikasi menyala dan `GET /health` menjawab 200.
-- [ ] Pencarian `TechnicianKit`, `work_order`, `kit.reconciled`, `budget_approved = True`, dan `except Exception: pass` di `services/scm-api/app` tidak menemukan apa pun.
-- [ ] Setiap slice punya paket kosong yang bisa diimpor; `main.py` sudah menyertakan semua router sehingga slice tidak perlu mengedit `main.py`.
-- [ ] Tiga temuan P0 di backlog `tracks/scm.md` terhapus bersama kodenya (digantikan oleh `SCM-0-02`, `SCM-B-01`, `SCM-B-03`).
+- [x] Aplikasi menyala dan `GET /health` menjawab 200.
+- [x] Pencarian `TechnicianKit`, `work_order`, `kit.reconciled`, `budget_approved = True`, dan `except Exception: pass` di `services/scm-api/app` tidak menemukan apa pun.
+- [x] Setiap slice punya paket kosong yang bisa diimpor; `main.py` sudah menyertakan semua router sehingga slice tidak perlu mengedit `main.py`.
+- [x] Tiga temuan P0 di backlog `tracks/scm.md` terhapus bersama kodenya (digantikan oleh `SCM-0-02`, `SCM-B-01`, `SCM-B-03`).
 
 ## Tes
 
@@ -44,6 +44,6 @@ spec: "spec.md#4-model-data; ADR-0003"
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

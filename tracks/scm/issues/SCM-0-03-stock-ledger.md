@@ -5,7 +5,7 @@ slice: 0
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "none"
 depends_on: [SCM-0-01, SCM-0-05]
 touches:
@@ -28,11 +28,11 @@ Saldo stok dipakai tiga slice (reservasi dan pengeluaran, penerimaan, retur). Sa
 
 ## Kriteria penerimaan
 
-- [ ] Dua `reserve` berurutan untuk unit terakhir: yang kedua gagal `INSUFFICIENT_STOCK`.
-- [ ] `qty_available = physical − reserved − damaged` benar setelah tiap operasi.
-- [ ] Barang rusak tidak masuk `qty_available`.
-- [ ] Tidak ada operasi yang membuat saldo negatif.
-- [ ] Setiap operasi menulis tepat satu `StockMovement`.
+- [x] Dua `reserve` berurutan untuk unit terakhir: yang kedua gagal `INSUFFICIENT_STOCK`.
+- [x] `qty_available = physical − reserved − damaged` benar setelah tiap operasi.
+- [x] Barang rusak tidak masuk `qty_available`.
+- [x] Tidak ada operasi yang membuat saldo negatif.
+- [x] Setiap operasi menulis tepat satu `StockMovement`.
 
 ## Tes
 
@@ -44,6 +44,6 @@ Saldo stok dipakai tiga slice (reservasi dan pengeluaran, penerimaan, retur). Sa
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

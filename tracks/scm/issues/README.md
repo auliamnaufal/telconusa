@@ -17,12 +17,12 @@ Aturan `depends_on`: hanya Slice 0 atau issue sebelumnya di slice yang sama. Sat
 
 | Issue | Judul | Tier | Prioritas | Status | Owner |
 | :--- | :--- | :---: | :---: | :---: | :--- |
-| [SCM-0-01](SCM-0-01-restructure-and-remove-legacy.md) | Restrukturisasi paket per slice dan hapus kode lama | 1 | P0 | TODO | Naufal |
-| [SCM-0-02](SCM-0-02-core-infrastructure.md) | Infrastruktur inti: event, auth, galat, idempotensi, outbox, audit, harness tes | 1 | P0 | TODO | Naufal |
-| [SCM-0-03](SCM-0-03-stock-ledger.md) | Buku besar stok | 1 | P0 | TODO | Naufal |
-| [SCM-0-04](SCM-0-04-ports-and-machines.md) | Port antar-slice dan mesin status | 1 | P0 | TODO | Naufal |
-| [SCM-0-05](SCM-0-05-models-migrations-seed.md) | Model semua slice, migrasi per slice, dan seed | 1 | P0 | TODO | Naufal |
-| [SCM-0-06](SCM-0-06-web-shell.md) | Kerangka web: layout, login, navigasi, klien API, komponen dasar | 1 | P0 | TODO | Naufal |
+| [SCM-0-01](SCM-0-01-restructure-and-remove-legacy.md) | Restrukturisasi paket per slice dan hapus kode lama | 1 | P0 | DONE | Naufal |
+| [SCM-0-02](SCM-0-02-core-infrastructure.md) | Infrastruktur inti: event, auth, galat, idempotensi, outbox, audit, harness tes | 1 | P0 | DONE | Naufal |
+| [SCM-0-03](SCM-0-03-stock-ledger.md) | Buku besar stok | 1 | P0 | DONE | Naufal |
+| [SCM-0-04](SCM-0-04-ports-and-machines.md) | Port antar-slice dan mesin status | 1 | P0 | DONE | Naufal |
+| [SCM-0-05](SCM-0-05-models-migrations-seed.md) | Model semua slice, migrasi per slice, dan seed | 1 | P0 | DONE | Naufal |
+| [SCM-0-06](SCM-0-06-web-shell.md) | Kerangka web: layout, login, navigasi, klien API, komponen dasar | 1 | P0 | DONE | Naufal |
 
 ## Slice A: permintaan barang dan pengeluaran
 

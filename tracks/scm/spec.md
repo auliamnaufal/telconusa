@@ -320,7 +320,7 @@ Tampilan memakai token merek di `apps/scm-web/public/brand/tokens.css`. Satu fol
 | `/assets`, `/assets/[serial]` | C | Register ONT per nomor seri, riwayat status, pemeriksaan retur |
 | `/audit` | D | Audit log (Tier 2) |
 
-Menu dan tombol mengikuti role (tombol yang tidak boleh dipakai role itu disembunyikan, dan server tetap menolaknya).
+Menu dan tombol mengikuti role (tombol yang tidak boleh dipakai role itu disembunyikan, dan server tetap menolaknya). Matriks menu ada di `apps/scm-web/src/lib/roles.ts`: `WAREHOUSE_STAFF` melihat Pengadaan untuk mencatat penerimaan barang, `FINANCE_MANAGER` hanya melihat Pengadaan (menyetujui PO).
 
 ## 11. Pengujian
 

@@ -5,7 +5,7 @@ slice: 0
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "none"
 depends_on: [SCM-0-01]
 touches:
@@ -31,10 +31,10 @@ Skema disepakati lebih dulu di spec supaya slice hanya menambah logika, bukan ta
 
 ## Kriteria penerimaan
 
-- [ ] `alembic upgrade heads` dari basis data kosong berhasil, dan diulang tanpa galat.
-- [ ] Menjalankan seed dua kali tidak menggandakan data.
-- [ ] Untuk setiap SKU serial dan gudang: `qty_physical` sama dengan jumlah unit `IN_STOCK`, `RESERVED`, dan `FAULTY` di gudang itu (diperiksa tes).
-- [ ] Nama tabel dan kolom `snake_case`, uang `BIGINT`, setiap tabel transaksi punya `version`.
+- [x] `alembic upgrade heads` dari basis data kosong berhasil, dan diulang tanpa galat.
+- [x] Menjalankan seed dua kali tidak menggandakan data.
+- [x] Untuk setiap SKU serial dan gudang: `qty_physical` sama dengan jumlah unit `IN_STOCK`, `RESERVED`, dan `FAULTY` di gudang itu (diperiksa tes).
+- [x] Nama tabel dan kolom `snake_case`, uang `BIGINT`, setiap tabel transaksi punya `version`.
 
 ## Tes
 
@@ -46,6 +46,6 @@ Skema disepakati lebih dulu di spec supaya slice hanya menambah logika, bukan ta
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

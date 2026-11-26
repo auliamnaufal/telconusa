@@ -5,7 +5,7 @@ slice: 0
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "none"
 depends_on: [SCM-0-01, SCM-0-05]
 touches:
@@ -33,11 +33,11 @@ Semua slice memakai fondasi yang sama untuk menerima event, memeriksa peran, mel
 
 ## Kriteria penerimaan
 
-- [ ] Event tanpa atau dengan tanda tangan salah ditolak `401`.
-- [ ] Event dengan `event_id` yang sama diproses sekali.
-- [ ] Galat memakai format baku dan membawa `correlation_id`.
-- [ ] `POST` dengan `Idempotency-Key` yang sama mengembalikan respons yang sama dan tidak menjalankan handler dua kali.
-- [ ] Event yang di-`publish` berstatus pending di outbox bersama perubahan datanya, dan hilang bila transaksi di-rollback.
+- [x] Event tanpa atau dengan tanda tangan salah ditolak `401`.
+- [x] Event dengan `event_id` yang sama diproses sekali.
+- [x] Galat memakai format baku dan membawa `correlation_id`.
+- [x] `POST` dengan `Idempotency-Key` yang sama mengembalikan respons yang sama dan tidak menjalankan handler dua kali.
+- [x] Event yang di-`publish` berstatus pending di outbox bersama perubahan datanya, dan hilang bila transaksi di-rollback.
 
 ## Tes
 
@@ -45,6 +45,6 @@ Semua slice memakai fondasi yang sama untuk menerima event, memeriksa peran, mel
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

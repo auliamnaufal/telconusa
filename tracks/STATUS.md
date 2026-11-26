@@ -42,9 +42,9 @@ Consumers are shown as `track:status` using the status each consumer declares in
 | crm | Event | `referral.used` | MOCKED | 2026-11-25 | hrm:PLANNED |
 | crm | Event | `subscription.activated` | MOCKED | 2026-11-25 | finance:PLANNED |
 | crm | Event | `technician.rated` | MOCKED | 2026-11-25 | hrm:PLANNED |
-| crm | Event | `ticket.assigned` | MOCKED | 2026-11-25 | hrm:PLANNED, scm:PLANNED |
-| crm | Event | `ticket.created` | MOCKED | 2026-11-25 | scm:PLANNED |
-| crm | Event | `ticket.items_reported` | MOCKED | 2026-11-25 | scm:PLANNED |
+| crm | Event | `ticket.assigned` | MOCKED | 2026-11-25 | hrm:PLANNED, scm:MOCKED |
+| crm | Event | `ticket.created` | MOCKED | 2026-11-25 | scm:MOCKED |
+| crm | Event | `ticket.items_reported` | MOCKED | 2026-11-25 | scm:MOCKED |
 | crm | Event | `ticket.resolved` | MOCKED | 2026-11-25 | hrm:PLANNED |
 | finance | API | `GET /api/v1/customers/{customer_code}/invoices` | MOCKED | 2026-11-25 | crm:PLANNED |
 | finance | API | `GET /api/v1/dashboard/summary` | MOCKED | 2026-11-25 | - |
@@ -64,17 +64,17 @@ Consumers are shown as `track:status` using the status each consumer declares in
 | hrm | API | `POST /api/v1/referrals` | MOCKED | 2026-11-25 | - |
 | scm | API | `GET /api/v1/dashboard/summary` | MOCKED | 2026-11-25 | - |
 | scm | API | `GET /api/v1/package-kits/{sku}` | MOCKED | 2026-11-25 | crm:PLANNED |
-| scm | API | `GET /api/v1/stock-requests` | MOCKED | 2026-11-25 | - |
-| scm | API | `GET /api/v1/stock-requests/{stock_request_no}` | MOCKED | 2026-11-25 | - |
+| scm | API | `GET /api/v1/stock-requests` | LIVE | 2026-11-26 | - |
+| scm | API | `GET /api/v1/stock-requests/{stock_request_no}` | LIVE | 2026-11-26 | - |
 | scm | API | `GET /api/v1/stock/{sku}` | MOCKED | 2026-11-25 | crm:PLANNED |
 | scm | API | `POST /api/v1/purchase-orders` | MOCKED | 2026-11-25 | - |
-| scm | API | `POST /api/v1/stock-requests/{stock_request_no}/flag-damaged` | MOCKED | 2026-11-25 | - |
-| scm | API | `POST /api/v1/stock-requests/{stock_request_no}/issue` | MOCKED | 2026-11-25 | - |
-| scm | API | `POST /api/v1/stock-requests/{stock_request_no}/issue-extra` | MOCKED | 2026-11-25 | - |
-| scm | Event | `stock.issued` | MOCKED | 2026-11-25 | crm:PLANNED |
-| scm | Event | `stock.returned` | MOCKED | 2026-11-25 | crm:PLANNED |
-| scm | Event | `stockrequest.pending` | MOCKED | 2026-11-25 | crm:PLANNED |
-| scm | Event | `stockrequest.ready` | MOCKED | 2026-11-25 | crm:PLANNED |
+| scm | API | `POST /api/v1/stock-requests/{stock_request_no}/flag-damaged` | LIVE | 2026-11-26 | - |
+| scm | API | `POST /api/v1/stock-requests/{stock_request_no}/issue` | LIVE | 2026-11-26 | - |
+| scm | API | `POST /api/v1/stock-requests/{stock_request_no}/issue-extra` | LIVE | 2026-11-26 | - |
+| scm | Event | `stock.issued` | LIVE | 2026-11-26 | crm:PLANNED |
+| scm | Event | `stock.returned` | LIVE | 2026-11-26 | crm:PLANNED |
+| scm | Event | `stockrequest.pending` | LIVE | 2026-11-26 | crm:PLANNED |
+| scm | Event | `stockrequest.ready` | LIVE | 2026-11-26 | crm:PLANNED |
 
 ## Summary per track
 
@@ -83,4 +83,4 @@ Consumers are shown as `track:status` using the status each consumer declares in
 | crm | 0 | 28 | 0 | 0 | 0 | 28 |
 | finance | 0 | 10 | 0 | 0 | 0 | 10 |
 | hrm | 0 | 6 | 0 | 0 | 0 | 6 |
-| scm | 0 | 13 | 0 | 0 | 0 | 13 |
+| scm | 0 | 4 | 9 | 0 | 0 | 13 |

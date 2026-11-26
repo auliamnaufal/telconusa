@@ -5,7 +5,7 @@ slice: A
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "none"
 depends_on: [SCM-0, SCM-A-01]
 touches:
@@ -28,9 +28,9 @@ Dipanggil Slice B setelah penerimaan barang agar `PENDING_STOCK` kembali `READY_
 
 ## Kriteria penerimaan
 
-- [ ] Dua permintaan pending bersaing untuk stok yang baru masuk: yang lebih tua terpenuhi lebih dulu, yang lain tetap `PENDING_STOCK`.
-- [ ] Permintaan yang masih kurang satu baris tetap `PENDING_STOCK` tanpa reservasi.
-- [ ] Memanggil dua kali tidak menerbitkan `ready` dua kali.
+- [x] Dua permintaan pending bersaing untuk stok yang baru masuk: yang lebih tua terpenuhi lebih dulu, yang lain tetap `PENDING_STOCK`.
+- [x] Permintaan yang masih kurang satu baris tetap `PENDING_STOCK` tanpa reservasi.
+- [x] Memanggil dua kali tidak menerbitkan `ready` dua kali.
 
 ## Tes
 
@@ -38,6 +38,6 @@ Dipanggil Slice B setelah penerimaan barang agar `PENDING_STOCK` kembali `READY_
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

@@ -5,7 +5,7 @@ slice: A
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "K (event `ticket.created`, `stockrequest.ready`, `stockrequest.pending`)"
 depends_on: [SCM-0]
 touches:
@@ -28,11 +28,11 @@ Langkah 5 alur demo. Inti reservasi 72 jam dan `PENDING_STOCK`.
 
 ## Kriteria penerimaan
 
-- [ ] Stok ONT dan kabel cukup di Bandung: `READY_TO_ISSUE`, `qty_reserved` naik, event `ready` ada di outbox.
-- [ ] Stok ONT 0: `PENDING_STOCK`, tidak ada reservasi (baris kabel pun tidak ditahan), PR dibuat lewat port, event `pending` membawa `purchase_request_no`.
-- [ ] Event yang sama dua kali (`event_id` sama) menghasilkan satu permintaan. `ticket_code` sama dengan `event_id` berbeda tetap satu permintaan.
-- [ ] Ketersediaan diperiksa di gudang kota tiket, bukan jumlah semua gudang.
-- [ ] Payload event lolos `contracts/events/*.schema.json`.
+- [x] Stok ONT dan kabel cukup di Bandung: `READY_TO_ISSUE`, `qty_reserved` naik, event `ready` ada di outbox.
+- [x] Stok ONT 0: `PENDING_STOCK`, tidak ada reservasi (baris kabel pun tidak ditahan), PR dibuat lewat port, event `pending` membawa `purchase_request_no`.
+- [x] Event yang sama dua kali (`event_id` sama) menghasilkan satu permintaan. `ticket_code` sama dengan `event_id` berbeda tetap satu permintaan.
+- [x] Ketersediaan diperiksa di gudang kota tiket, bukan jumlah semua gudang.
+- [x] Payload event lolos `contracts/events/*.schema.json`.
 
 ## Tes
 
@@ -44,6 +44,6 @@ Langkah 5 alur demo. Inti reservasi 72 jam dan `PENDING_STOCK`.
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

@@ -16,25 +16,25 @@ provides:
   api:
   - {id: 'GET /api/v1/stock/{sku}', status: MOCKED, since: '2026-11-25'}
   - {id: 'GET /api/v1/package-kits/{sku}', status: MOCKED, since: '2026-11-25'}
-  - {id: GET /api/v1/stock-requests, status: MOCKED, since: '2026-11-25'}
-  - {id: 'GET /api/v1/stock-requests/{stock_request_no}', status: MOCKED, since: '2026-11-25'}
-  - {id: 'POST /api/v1/stock-requests/{stock_request_no}/issue', status: MOCKED, since: '2026-11-25'}
-  - {id: 'POST /api/v1/stock-requests/{stock_request_no}/issue-extra', status: MOCKED, since: '2026-11-25'}
-  - {id: 'POST /api/v1/stock-requests/{stock_request_no}/flag-damaged', status: MOCKED, since: '2026-11-25'}
+  - {id: GET /api/v1/stock-requests, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_stock_request_api.py}
+  - {id: 'GET /api/v1/stock-requests/{stock_request_no}', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_stock_request_api.py}
+  - {id: 'POST /api/v1/stock-requests/{stock_request_no}/issue', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_issue.py}
+  - {id: 'POST /api/v1/stock-requests/{stock_request_no}/issue-extra', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_issue_extra.py}
+  - {id: 'POST /api/v1/stock-requests/{stock_request_no}/flag-damaged', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_flag_damaged.py}
   - {id: POST /api/v1/purchase-orders, status: MOCKED, since: '2026-11-25'}
   - {id: GET /api/v1/dashboard/summary, status: MOCKED, since: '2026-11-25'}
   events:
-  - {id: stockrequest.ready, status: MOCKED, since: '2026-11-25'}
-  - {id: stockrequest.pending, status: MOCKED, since: '2026-11-25'}
-  - {id: stock.issued, status: MOCKED, since: '2026-11-25'}
-  - {id: stock.returned, status: MOCKED, since: '2026-11-25'}
+  - {id: stockrequest.ready, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_ticket_created.py}
+  - {id: stockrequest.pending, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_ticket_created.py}
+  - {id: stock.issued, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_issue.py}
+  - {id: stock.returned, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_items_reported.py}
 consumes:
   api:
   - {id: POST /api/v1/budgets/check, from: finance, status: PLANNED}
   events:
-  - {id: ticket.assigned, from: crm, status: PLANNED}
-  - {id: ticket.created, from: crm, status: PLANNED}
-  - {id: ticket.items_reported, from: crm, status: PLANNED}
+  - {id: ticket.assigned, from: crm, status: MOCKED}
+  - {id: ticket.created, from: crm, status: MOCKED}
+  - {id: ticket.items_reported, from: crm, status: MOCKED}
 ---
 
 # Track SCM

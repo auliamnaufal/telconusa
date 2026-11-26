@@ -28,18 +28,18 @@ Aturan `depends_on`: hanya Slice 0 atau issue sebelumnya di slice yang sama. Sat
 
 | Issue | Judul | Tier | Prioritas | Status | Owner |
 | :--- | :--- | :---: | :---: | :---: | :--- |
-| [SCM-A-01](SCM-A-01-handle-ticket-created.md) | Handler `ticket.created` menjadi permintaan barang | 1 | P0 | TODO | Naufal |
-| [SCM-A-02](SCM-A-02-handle-ticket-assigned.md) | Handler `ticket.assigned` mengisi teknisi | 1 | P1 | TODO | Naufal |
-| [SCM-A-03](SCM-A-03-stock-request-read-api.md) | GET daftar dan detail permintaan barang | 1 | P1 | TODO | Naufal |
-| [SCM-A-04](SCM-A-04-issue-stock-request.md) | POST issue: pengeluaran ke teknisi | 1 | P0 | TODO | Naufal |
-| [SCM-A-05](SCM-A-05-issue-extra.md) | POST issue-extra: barang tambahan | 1 | P1 | TODO | Naufal |
-| [SCM-A-06](SCM-A-06-handle-items-reported.md) | Handler `ticket.items_reported`: laporan pemakaian | 1 | P0 | TODO | Naufal |
-| [SCM-A-07](SCM-A-07-flag-damaged.md) | POST flag-damaged | 1 | P1 | TODO | Naufal |
-| [SCM-A-08](SCM-A-08-cancel-and-expiry.md) | Pembatalan permintaan dan reservasi kedaluwarsa 72 jam | 1 | P1 | TODO | Naufal |
-| [SCM-A-09](SCM-A-09-reevaluate-pending.md) | Implementasi `StockRequestPort.reevaluate_pending` | 1 | P0 | TODO | Naufal |
-| [SCM-A-10](SCM-A-10-web-stock-requests.md) | Layar permintaan barang | 1 | P1 | TODO | Naufal |
-| [SCM-A-11](SCM-A-11-fifo-lots.md) | FIFO per batch untuk barang non-serial | 2 | P2 | TODO | Naufal |
-| [SCM-A-12](SCM-A-12-low-stock-purchase-request.md) | Stok di bawah ROP membuat PR otomatis | 2 | P2 | TODO | Naufal |
+| [SCM-A-01](SCM-A-01-handle-ticket-created.md) | Handler `ticket.created` menjadi permintaan barang | 1 | P0 | DONE | Naufal |
+| [SCM-A-02](SCM-A-02-handle-ticket-assigned.md) | Handler `ticket.assigned` mengisi teknisi | 1 | P1 | DONE | Naufal |
+| [SCM-A-03](SCM-A-03-stock-request-read-api.md) | GET daftar dan detail permintaan barang | 1 | P1 | DONE | Naufal |
+| [SCM-A-04](SCM-A-04-issue-stock-request.md) | POST issue: pengeluaran ke teknisi | 1 | P0 | DONE | Naufal |
+| [SCM-A-05](SCM-A-05-issue-extra.md) | POST issue-extra: barang tambahan | 1 | P1 | DONE | Naufal |
+| [SCM-A-06](SCM-A-06-handle-items-reported.md) | Handler `ticket.items_reported`: laporan pemakaian | 1 | P0 | DONE | Naufal |
+| [SCM-A-07](SCM-A-07-flag-damaged.md) | POST flag-damaged | 1 | P1 | DONE | Naufal |
+| [SCM-A-08](SCM-A-08-cancel-and-expiry.md) | Pembatalan permintaan dan reservasi kedaluwarsa 72 jam | 1 | P1 | DONE | Naufal |
+| [SCM-A-09](SCM-A-09-reevaluate-pending.md) | Implementasi `StockRequestPort.reevaluate_pending` | 1 | P0 | DONE | Naufal |
+| [SCM-A-10](SCM-A-10-web-stock-requests.md) | Layar permintaan barang | 1 | P1 | DONE | Naufal |
+| [SCM-A-11](SCM-A-11-fifo-lots.md) | FIFO per batch untuk barang non-serial | 2 | P2 | DONE | Naufal |
+| [SCM-A-12](SCM-A-12-low-stock-purchase-request.md) | Stok di bawah ROP membuat PR otomatis | 2 | P2 | DONE | Naufal |
 
 ## Slice B: pengadaan
 

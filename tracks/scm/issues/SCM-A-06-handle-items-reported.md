@@ -5,7 +5,7 @@ slice: A
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "K (event `ticket.items_reported`, `stock.returned`)"
 depends_on: [SCM-0, SCM-A-04]
 touches:
@@ -28,11 +28,11 @@ Langkah 9 alur demo. Menutup siklus permintaan dan memperbarui persediaan dari `
 
 ## Kriteria penerimaan
 
-- [ ] `used + returned = issued`: `has_discrepancy = false`, kabel 20 m kembali menambah saldo, ONT di `serial_numbers_installed` menjadi `INSTALLED`.
-- [ ] `used + returned < issued`: `discrepancy` tertandai, `has_discrepancy = true`, saldo tidak berubah untuk bagian yang hilang.
-- [ ] `used + returned > issued`: `returned` dipotong, ditandai selisih.
-- [ ] Event ganda tidak menambah saldo dua kali. Event untuk permintaan `READY_TO_ISSUE` diabaikan.
-- [ ] Payload `stock.returned` lolos skema kontrak.
+- [x] `used + returned = issued`: `has_discrepancy = false`, kabel 20 m kembali menambah saldo, ONT di `serial_numbers_installed` menjadi `INSTALLED`.
+- [x] `used + returned < issued`: `discrepancy` tertandai, `has_discrepancy = true`, saldo tidak berubah untuk bagian yang hilang.
+- [x] `used + returned > issued`: `returned` dipotong, ditandai selisih.
+- [x] Event ganda tidak menambah saldo dua kali. Event untuk permintaan `READY_TO_ISSUE` diabaikan.
+- [x] Payload `stock.returned` lolos skema kontrak.
 
 ## Tes
 
@@ -40,6 +40,6 @@ Langkah 9 alur demo. Menutup siklus permintaan dan memperbarui persediaan dari `
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

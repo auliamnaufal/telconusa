@@ -89,7 +89,7 @@ ID internal `CHAR(36)` UUID, kode bisnis dari `shared.ids.next_code`, uang `BIGI
 | `AuditLog`, `IdempotencyKey` | | 0 | Log: `actor`, `role`, `action`, `entity`, `entity_id`, `detail`, `correlation_id`, `at`. Kunci: `key`, `endpoint`, `response_json`, `status_code` |
 | `PendingAssignment` | | A | `ticket_code`, `technician_employee_id` (penugasan yang tiba sebelum permintaan barang ada) |
 | `PoQuote` (Tier 2) | | B | `po_no`, `vendor_code`, `unit_price`, `notes` (tabel dibuat lewat migrasi tambahan slice B) |
-| `StockLot` (Tier 2) | | A | `warehouse_code`, `item_sku`, `gr_no`, `qty_remaining`, `received_at` (migrasi tambahan slice A) |
+| `StockLot` (Tier 2) | | 0 (model), A (migrasi `stock_0002`) | `warehouse_code`, `item_sku`, `seq`, `ref_no`, `qty_remaining`, `received_at`; dikelola `core/ledger.py` |
 | `Transfer` + baris (Tier 2) | `TRF-2026-0001` | D | `from_warehouse_code`, `to_warehouse_code`, `status`; baris: `item_sku`, `qty`, `serial_numbers` (migrasi tambahan slice D) |
 | `IdCounter`, `ProcessedEvent`, `OutboxEvent`, `DeadLetterEvent` | | 0 | Dari `shared/` |
 
@@ -202,8 +202,8 @@ Semua handler event idempoten: `event_id` dicatat di `ProcessedEvent`, dan statu
 
 - Jumlah rusak total per baris ≤ `qty_issued − qty_used`.
 - Permintaan `ISSUED`: catat `qty_damaged` pada baris; saldo disesuaikan saat F4.
-- Permintaan `RETURNED`, non-serial: `ledger.return_damaged` sebesar selisih (bila barang belum masuk sebagai baik) atau `ledger.mark_damaged`.
-- Serial: unit menjadi `FAULTY` (`AssetPort.mark_faulty`).
+- Permintaan `RETURNED`, non-serial: `ledger.mark_damaged` (barang baik yang sudah kembali berpindah ke stok rusak).
+- Serial: hanya saat `ISSUED`; unit menjadi `FAULTY` (`AssetPort.mark_faulty`) dan masuk saldo sebagai rusak saat F4. Setelah `RETURNED`, unit dinilai lewat pemeriksaan unit retur (F6), bukan tandai rusak (`409 USE_UNIT_INSPECTION`).
 - Stok rusak tidak pernah dihitung tersedia.
 
 ### F6. Pemeriksaan retur (Slice C)
@@ -212,7 +212,7 @@ Semua handler event idempoten: `event_id` dicatat di `ProcessedEvent`, dan statu
 
 ### F7. Reservasi kedaluwarsa (Slice A)
 
-Pekerjaan berkala (tiap menit) mencari permintaan `READY_TO_ISSUE` dengan `reserved_until` terlewat. Untuk tiap permintaan, dalam satu transaksi: `ledger.release`, `AssetPort.release_units`, status `CANCELLED`. `POST …/cancel` oleh staf gudang melakukan hal yang sama untuk status `REQUESTED`, `PENDING_STOCK`, atau `READY_TO_ISSUE` dan wajib mengisi alasan. Permintaan `PENDING_STOCK` tidak punya reservasi dan tidak kedaluwarsa. `stockrequest.cancelled` belum dikontrakkan, jadi CRM belum diberi tahu (lihat `contract-extension.md`).
+Pekerjaan berkala `stock.expire_reservations` (terdaftar lewat `core/jobs.py`, tiap menit) mencari permintaan `READY_TO_ISSUE` dengan `reserved_until` terlewat. Untuk tiap permintaan, dalam satu transaksi: `ledger.release`, `AssetPort.release_units`, status `CANCELLED`, lalu stok yang dilepas ditawarkan ke permintaan `PENDING_STOCK` tertua (`reevaluate_pending`). `POST …/cancel` oleh staf gudang melakukan hal yang sama untuk status `REQUESTED`, `PENDING_STOCK`, atau `READY_TO_ISSUE` dan wajib mengisi alasan. Permintaan `PENDING_STOCK` tidak punya reservasi dan tidak kedaluwarsa. `stockrequest.cancelled` belum dikontrakkan, jadi CRM belum diberi tahu (lihat `contract-extension.md`).
 
 ### F8. Pengadaan (Slice B)
 
@@ -235,8 +235,8 @@ Pekerjaan berkala (tiap menit) mencari permintaan `READY_TO_ISSUE` dengan `reser
 - **Batas teknisi:** `AssetPort.mark_with_technician` menolak bila teknisi akan memegang lebih dari 10 unit ONT berstatus `WITH_TECHNICIAN` (`409 TECHNICIAN_LIMIT_EXCEEDED`). Halaman kepemilikan per teknisi.
 - **`LOST` dan `WRITTEN_OFF`:** lihat bagian 5.2.
 - **Transfer antar-gudang:** `Transfer` (`TRF-2026-0001`): `REQUESTED → IN_TRANSIT → RECEIVED`. Saldo gudang asal turun saat dikirim (`issue`-setara), saldo gudang tujuan naik hanya setelah penerimaan dikonfirmasi.
-- **FIFO per batch non-serial:** pengeluaran non-serial menghabiskan batch terlama lebih dulu (`StockLot`).
-- **`stock.low`:** setelah gerakan stok, bila `qty_available` di bawah ROP, buat PR `LOW_STOCK` (satu PR terbuka per SKU dan gudang). Event `stock.low` terbit setelah dikontrakkan.
+- **FIFO per batch non-serial:** `ledger` menyimpan stok baik non-serial per batch (`StockLot`, urut masuk `seq`); `receive` dan `return_good` membuat batch baru, `issue`, `issue_extra`, dan `mark_damaged` menghabiskan batch tertua dulu. Jumlah semua batch = stok fisik − rusak. Unit serial tidak punya batch (FIFO lewat `received_at`).
+- **`stock.low`:** saat `qty_available` menyeberang ke bawah ROP (sebelum ≥ ROP, sesudah < ROP) karena reservasi, barang tambahan, atau tandai rusak, Slice A memanggil `ProcurementPort.request_low_stock_purchase` (jumlah = 2 × ROP − tersedia); port menjaga satu PR `LOW_STOCK` terbuka per SKU dan gudang. Event `stock.low` terbit setelah dikontrakkan.
 - **Audit log:** semua operasi tulis memanggil `core.audit.record`; halaman audit log hanya membaca.
 
 ## 7. Aturan lintas fitur

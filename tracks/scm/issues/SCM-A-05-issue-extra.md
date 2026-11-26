@@ -5,7 +5,7 @@ slice: A
 tier: 1
 priority: P1
 owner: Naufal
-status: TODO
+status: DONE
 contract: "K (`POST …/issue-extra`)"
 depends_on: [SCM-0, SCM-A-04]
 touches:
@@ -28,9 +28,9 @@ Teknisi kembali ke gudang meminta barang tambahan; tidak perlu persetujuan ulang
 
 ## Kriteria penerimaan
 
-- [ ] Permintaan belum `ISSUED`: `409 INVALID_TRANSITION`. Stok kurang: `409 INSUFFICIENT_STOCK`.
-- [ ] Baris tambahan tercatat `is_extra = true` dan muncul di detail.
-- [ ] Idempoten dengan `Idempotency-Key`.
+- [x] Permintaan belum `ISSUED`: `409 INVALID_TRANSITION`. Stok kurang: `409 INSUFFICIENT_STOCK`.
+- [x] Baris tambahan tercatat `is_extra = true` dan muncul di detail.
+- [x] Idempoten dengan `Idempotency-Key`.
 
 ## Tes
 
@@ -38,6 +38,6 @@ Teknisi kembali ke gudang meminta barang tambahan; tidak perlu persetujuan ulang
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

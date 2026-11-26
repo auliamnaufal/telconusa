@@ -25,6 +25,7 @@ Memperbaiki P0: cek anggaran gagal-buka. Finance mati harus menahan PR, bukan me
 - Klien Finance `app/procurement/finance_client.py`: `POST {FINANCE_API_URL}/api/v1/budgets/check` dengan `shared.service_auth.service_headers("scm", ["budgets:check"], correlation_id)`, timeout 5 detik. Galat jaringan, timeout, dan 5xx menjadi hasil "tidak terjangkau", dicatat, tidak ditelan.
 - Layanan PR: buat PR (`PR-` dari sequence) dengan status mesin 5.3; hasil `approved` → `BUDGET_OK`, `approved: false` → `BUDGET_REJECTED`, tidak terjangkau → `PENDING_BUDGET`.
 - Implementasi `ProcurementPort.request_purchase`: satu PR per permintaan barang, satu baris per SKU kurang, perkiraan biaya `qty × unit_cost`; panggilan kedua untuk permintaan yang sama mengembalikan PR yang sama.
+- Implementasi `ProcurementPort.request_low_stock_purchase` (dipanggil Slice A saat stok tersedia menyeberang ke bawah ROP): buat PR `source=LOW_STOCK` untuk SKU dan gudang itu; idempoten: bila sudah ada PR `LOW_STOCK` terbuka (`PENDING_BUDGET` atau `BUDGET_OK`), kembalikan nomornya tanpa membuat PR kedua.
 - Pekerjaan berkala mengulang cek anggaran PR `PENDING_BUDGET`.
 - `GET /purchase-requests` dan `GET /purchase-requests/{no}` (role SCM dan `DIRECTOR`).
 
@@ -35,6 +36,7 @@ Memperbaiki P0: cek anggaran gagal-buka. Finance mati harus menahan PR, bukan me
 - [ ] PO Rp35 miliar saat Finance mati tidak pernah lolos.
 - [ ] Pemanggilan Finance membawa token layanan dan `X-Correlation-Id`.
 - [ ] Tidak ada `except: pass`.
+- [ ] `request_low_stock_purchase` dua kali untuk SKU dan gudang yang sama menghasilkan satu PR `LOW_STOCK`.
 
 ## Tes
 

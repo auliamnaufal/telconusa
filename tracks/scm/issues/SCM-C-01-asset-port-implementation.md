@@ -23,6 +23,7 @@ Register ONT per nomor seri (P-03). Semua perubahan status unit lewat satu tempa
 ## Yang dikerjakan
 
 - Implementasikan semua metode `AssetPort` (lihat `SCM-0-04`) dan daftarkan di `app/assets/__init__.py`.
+- `mark_returned` melewati unit yang sudah `FAULTY` (Slice A menandai unit rusak lebih dulu lewat `flag-damaged` sebelum laporan pemakaian).
 - Setiap perubahan status memakai `shared.transitions` mesin `UNIT` dan menulis `UnitStatusLog` (dari, ke, `ref`, pelaku).
 - `register_units`: nomor seri `SN-ONT-{tahun}-{n:06d}` dari `next_code`, `IN_STOCK`, `received_at` sekarang, `received_gr_no`.
 - `reserve_units`: pilih `IN_STOCK` di gudang itu dengan `received_at` tertua (FIFO), jadi `RESERVED`, kaitkan ke `stock_request_no`; kurang dari qty → `INSUFFICIENT_STOCK` tanpa mengubah apa pun.
@@ -34,6 +35,7 @@ Register ONT per nomor seri (P-03). Semua perubahan status unit lewat satu tempa
 - [ ] `release_units` mengembalikan `RESERVED → IN_STOCK`.
 - [ ] Transisi yang tidak sah menjawab `409 INVALID_TRANSITION` dengan `allowed`.
 - [ ] Setiap perubahan menulis satu baris `UnitStatusLog`.
+- [ ] `mark_returned` pada campuran unit `WITH_TECHNICIAN` dan `FAULTY` hanya mengubah yang `WITH_TECHNICIAN`.
 
 ## Tes
 

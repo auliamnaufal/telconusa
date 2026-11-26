@@ -5,7 +5,7 @@ slice: A
 tier: 1
 priority: P0
 owner: Naufal
-status: TODO
+status: DONE
 contract: "K (`POST …/issue`, event `stock.issued`)"
 depends_on: [SCM-0, SCM-A-01, SCM-A-02]
 touches:
@@ -28,10 +28,10 @@ Langkah 7 alur demo. Hanya staf SCM yang mengubah status barang menjadi `WITH_TE
 
 ## Kriteria penerimaan
 
-- [ ] Status bukan `READY_TO_ISSUE`: `409 INVALID_TRANSITION`. Teknisi belum terisi: `409 TECHNICIAN_NOT_ASSIGNED`.
-- [ ] `serial_numbers` di luar himpunan yang direservasi: `409 SERIAL_NOT_RESERVED`; kosong: memakai unit yang direservasi.
-- [ ] Setelah issue: `qty_physical` dan `qty_reserved` turun sebesar qty; respons `{stock_request_no, status: ISSUED, unit_status: WITH_TECHNICIAN}`.
-- [ ] Pengulangan dengan `Idempotency-Key` sama tidak mengeluarkan dua kali. Teknisi (`TECHNICIAN`) mendapat `403`.
+- [x] Status bukan `READY_TO_ISSUE`: `409 INVALID_TRANSITION`. Teknisi belum terisi: `409 TECHNICIAN_NOT_ASSIGNED`.
+- [x] `serial_numbers` di luar himpunan yang direservasi: `409 SERIAL_NOT_RESERVED`; kosong: memakai unit yang direservasi.
+- [x] Setelah issue: `qty_physical` dan `qty_reserved` turun sebesar qty; respons `{stock_request_no, status: ISSUED, unit_status: WITH_TECHNICIAN}`.
+- [x] Pengulangan dengan `Idempotency-Key` sama tidak mengeluarkan dua kali. Teknisi (`TECHNICIAN`) mendapat `403`.
 
 ## Tes
 
@@ -39,6 +39,6 @@ Langkah 7 alur demo. Hanya staf SCM yang mengubah status barang menjadi `WITH_TE
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

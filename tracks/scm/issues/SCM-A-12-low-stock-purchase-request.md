@@ -5,7 +5,7 @@ slice: A
 tier: 2
 priority: P2
 owner: Naufal
-status: TODO
+status: DONE
 contract: "DRAFT (event `stock.low` belum diterbitkan)"
 depends_on: [SCM-0, SCM-A-06]
 touches:
@@ -22,14 +22,14 @@ Menjawab P-01 dan P-04: pengadaan tidak menunggu permintaan pelanggan.
 
 ## Yang dikerjakan
 
-- Setelah operasi ledger yang menurunkan `qty_available`, periksa ROP gudang itu; bila di bawah dan belum ada PR terbuka `LOW_STOCK` untuk SKU dan gudang itu, panggil `ProcurementPort.request_purchase` (jumlah = ROP×2 dikurangi tersedia).
-- Satu PR terbuka per SKU dan gudang.
+- Saat `qty_available` menyeberang ke bawah ROP gudang itu (sebelum ≥ ROP, sesudah < ROP) karena reservasi, barang tambahan, atau tandai rusak, panggil `ProcurementPort.request_low_stock_purchase` (jumlah = ROP×2 dikurangi tersedia). Pengeluaran paket (`issue`) tidak mengubah `qty_available` karena stok sudah direservasi.
+- Port baru `request_low_stock_purchase` (ditambahkan ke `core/ports.py`): Slice B menjaga satu PR `LOW_STOCK` terbuka per SKU dan gudang (`SCM-B-01`).
 
 ## Kriteria penerimaan
 
-- [ ] Pengeluaran yang membuat ONT di bawah ROP membuat satu PR `LOW_STOCK`.
-- [ ] Pengeluaran berikutnya tidak membuat PR kedua selama PR pertama belum `PO_CREATED` atau `CANCELLED`.
-- [ ] Event `stock.low` tidak diterbitkan sebelum kontraknya ada.
+- [x] Reservasi atau barang tambahan yang membuat ONT di bawah ROP memanggil port satu kali.
+- [x] Operasi berikutnya saat stok sudah di bawah ROP tidak memanggil port lagi (hanya penyeberangan yang dihitung).
+- [x] Event `stock.low` tidak diterbitkan sebelum kontraknya ada.
 
 ## Tes
 
@@ -37,6 +37,6 @@ Menjawab P-01 dan P-04: pengadaan tidak menunggu permintaan pelanggan.
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

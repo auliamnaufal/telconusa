@@ -5,7 +5,7 @@ slice: A
 tier: 1
 priority: P1
 owner: Naufal
-status: TODO
+status: DONE
 contract: "K (`GET /stock-requests`, `GET /stock-requests/{no}`)"
 depends_on: [SCM-0, SCM-A-01]
 touches:
@@ -29,9 +29,9 @@ Dipakai layar staf gudang dan pengujian lintas slice.
 
 ## Kriteria penerimaan
 
-- [ ] Bentuk respons sama dengan contoh di `contracts/openapi/scm.yaml`.
-- [ ] Role lain mendapat `403`; tanpa token `401`; nomor tak dikenal `404` dengan format galat baku.
-- [ ] Daftar bisa difilter per status dan kota.
+- [x] Bentuk respons sama dengan contoh di `contracts/openapi/scm.yaml`.
+- [x] Role lain mendapat `403`; tanpa token `401`; nomor tak dikenal `404` dengan format galat baku.
+- [x] Daftar bisa difilter per status dan kota.
 
 ## Tes
 
@@ -39,6 +39,6 @@ Dipakai layar staf gudang dan pengujian lintas slice.
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

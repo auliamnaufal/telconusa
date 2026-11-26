@@ -5,7 +5,7 @@ slice: A
 tier: 1
 priority: P1
 owner: Naufal
-status: TODO
+status: DONE
 contract: "K (event `ticket.assigned`)"
 depends_on: [SCM-0, SCM-A-01]
 touches:
@@ -28,9 +28,9 @@ Langkah 6 alur demo. Event bisa tiba sebelum atau sesudah `ticket.created`.
 
 ## Kriteria penerimaan
 
-- [ ] Event tiba sesudah permintaan: teknisi terisi.
-- [ ] Event tiba sebelum permintaan: setelah `ticket.created` diproses, teknisi terisi.
-- [ ] Event ganda tidak mengubah apa pun. Status permintaan tidak berubah oleh event ini.
+- [x] Event tiba sesudah permintaan: teknisi terisi.
+- [x] Event tiba sebelum permintaan: setelah `ticket.created` diproses, teknisi terisi.
+- [x] Event ganda tidak mengubah apa pun. Status permintaan tidak berubah oleh event ini.
 
 ## Tes
 
@@ -38,6 +38,6 @@ Langkah 6 alur demo. Event bisa tiba sebelum atau sesudah `ticket.created`.
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

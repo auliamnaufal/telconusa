@@ -46,6 +46,8 @@ python tools/check_contracts.py                # setelah mengubah tracks/scm.md
 docker compose up -d --build mysql scm-api     # jalankan layanan
 ```
 
+Basis data lama dari migrasi awal (`0001_initial_scm`) tidak kompatibel dengan skema Slice 0. Reset sekali dengan `docker compose down -v` sebelum menjalankan `scm-api`.
+
 ## Selesai
 
 Semua kotak "Kriteria penerimaan" dicentang, tes issue lulus, `status: DONE` di berkas issue dan `tracks/scm/issues/README.md`. Baris kontrak di `tracks/scm.md` hanya `LIVE` bila tes lulus; endpoint berstatus `DRAFT` tidak ditandai `LIVE`.

@@ -11,4 +11,4 @@ COPY scm-api /app
 ENV PYTHONPATH=/app
 EXPOSE 8003
 
-CMD ["sh", "-c", "alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8003"]
+CMD ["sh", "-c", "alembic upgrade heads && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8003"]

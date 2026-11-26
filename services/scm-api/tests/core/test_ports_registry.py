@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.ports import Shortage, override, ports
+from app.core.ports import Ports, Shortage, override, ports
 
 
 class FakeAssets:
@@ -9,14 +9,19 @@ class FakeAssets:
 
 
 def test_unimplemented_ports_fail_loudly_and_name_the_owning_issue():
+    fresh = Ports()  # instans baru: semua port masih stub, tidak bergantung pada slice mana yang sudah selesai
     with pytest.raises(NotImplementedError, match=r"AssetPort\.reserve_units belum diimplementasikan \(SCM-C-01\)"):
-        ports.assets.reserve_units(None, item_sku="ONT-01", warehouse_code="WH-BDG", qty=1, stock_request_no="SR-1")
+        fresh.assets.reserve_units(None, item_sku="ONT-01", warehouse_code="WH-BDG", qty=1, stock_request_no="SR-1")
     with pytest.raises(NotImplementedError, match=r"\(SCM-B-01\)"):
-        ports.procurement.request_purchase(
+        fresh.procurement.request_purchase(
             None, stock_request_no="SR-1", warehouse_code="WH-BDG", shortages=[Shortage("ONT-01", 1)], correlation_id="TKT-1"
         )
+    with pytest.raises(NotImplementedError, match=r"\(SCM-B-01\)"):
+        fresh.procurement.request_low_stock_purchase(
+            None, item_sku="ONT-01", warehouse_code="WH-BDG", qty=10, correlation_id="TKT-1"
+        )
     with pytest.raises(NotImplementedError, match=r"\(SCM-A-09\)"):
-        ports.stock_requests.reevaluate_pending(None, item_sku="ONT-01", warehouse_code="WH-BDG")
+        fresh.stock_requests.reevaluate_pending(None, item_sku="ONT-01", warehouse_code="WH-BDG")
 
 
 def test_override_swaps_one_port_and_restores_everything_afterwards():

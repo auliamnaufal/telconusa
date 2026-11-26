@@ -101,3 +101,19 @@ def signed_event():
         return raw, headers, envelope.event_id
 
     return _build
+
+
+@pytest.fixture
+def validate_event():
+    """Periksa `data` event terhadap `contracts/events/<event>.schema.json`."""
+    import json
+
+    import jsonschema
+
+    events_dir = API_DIR.parents[1] / "contracts" / "events"
+
+    def _validate(event_type: str, data: dict) -> None:
+        schema = json.loads((events_dir / f"{event_type}.schema.json").read_text())
+        jsonschema.validate(data, schema)
+
+    return _validate

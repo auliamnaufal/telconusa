@@ -34,6 +34,8 @@ Aturan tambahan untuk agen yang bekerja di `services/scm-api`. Aturan repo di `A
 - Kode bisnis dari `shared.ids.next_code`, bukan `count()+1`. Uang `BIGINT` rupiah, waktu WIB `+07:00`.
 - `POST` transaksi menerima `Idempotency-Key`. Galat memakai `ScmError` (format baku dengan `correlation_id`).
 - Setiap endpoint menyatakan peran lewat `core.auth.require_scm_roles` atau cakupan layanan lewat `core.auth.require_scope`.
+- Pekerjaan berkala (kedaluwarsa reservasi, ulang cek anggaran) didaftarkan dengan `@job("nama", interval_seconds)` dari `app/core/jobs.py` di modul slice yang diimpor `app/<slice>/__init__.py`; jangan membuat tugas latar belakang sendiri atau mengedit `main.py`. Di tes, jalankan satu putaran dengan `run_job_once` dan atur jam lewat `monkeypatch.setattr(clock, "utcnow", ...)`.
+- Tes slice yang memanggil port slice lain memasang fake lewat `ports.override`; contoh `FakeAssets` dan `FakeProcurement` ada di `tests/stock/conftest.py`. Jangan menguji perilaku stub global karena slice lain akan menggantinya.
 - Jangan menelan galat (`except: pass`). Kegagalan Finance menahan PR, tidak pernah meloloskannya.
 - Gaya mengikuti kode yang ada; jangan menambah abstraksi atau fitur di luar kriteria issue.
 

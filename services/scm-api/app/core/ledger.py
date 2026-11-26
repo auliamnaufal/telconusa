@@ -13,7 +13,8 @@ from sqlalchemy.orm.exc import StaleDataError
 
 from app.core.auth import Actor
 from app.core.errors import ScmError
-from app.core.models import InventoryBalance, Item, StockMovement, Warehouse
+from app.core.codes import new_lot_seq
+from app.core.models import InventoryBalance, Item, StockLot, StockMovement, Warehouse
 
 RECEIVE = "RECEIVE"
 RESERVE = "RESERVE"
@@ -105,6 +106,68 @@ def _record(
     return movement
 
 
+_LOT_ADD = {RECEIVE, RETURN_GOOD}  # stok baik bertambah: lot baru
+_LOT_CONSUME = {ISSUE, ISSUE_EXTRA, MARK_DAMAGED}  # stok baik berkurang: habiskan lot tertua dulu
+
+
+def get_lots(db: Session, warehouse_code: str, item_sku: str) -> list[StockLot]:
+    """Lot yang masih berisi, tertua lebih dulu."""
+    return (
+        db.query(StockLot)
+        .filter(StockLot.warehouse_code == warehouse_code, StockLot.item_sku == item_sku, StockLot.qty_remaining > 0)
+        .order_by(StockLot.seq)
+        .all()
+    )
+
+
+def _tracks_lots(db: Session, item_sku: str) -> bool:
+    item = db.get(Item, item_sku)
+    return item is not None and not item.is_serialized  # unit serial FIFO lewat `received_at` di Slice C
+
+
+def _plan_lots(db: Session, kind: str, warehouse_code: str, item_sku: str, qty: int) -> list[tuple[StockLot, int]]:
+    """Rencana pengambilan lot FIFO (tanpa efek samping); gagal bila lot tidak cukup menutup `qty`."""
+    if kind not in _LOT_CONSUME or not _tracks_lots(db, item_sku):
+        return []
+    plan: list[tuple[StockLot, int]] = []
+    needed = qty
+    for lot in get_lots(db, warehouse_code, item_sku):
+        take = min(lot.qty_remaining, needed)
+        plan.append((lot, take))
+        needed -= take
+        if needed == 0:
+            return plan
+    raise ScmError(
+        "LOT_MISMATCH",
+        f"Batch stok {item_sku} di gudang {warehouse_code} tidak cukup menutup {qty}",
+        409,
+        {"sku": item_sku, "warehouse_code": warehouse_code, "requested": qty, "in_lots": qty - needed},
+    )
+
+
+def _apply_lots(
+    db: Session, kind: str, balance: InventoryBalance, qty: int, plan: list[tuple[StockLot, int]], ref_no: str
+) -> None:
+    for lot, take in plan:
+        lot.qty_remaining -= take
+    if kind in _LOT_ADD and _tracks_lots(db, balance.item_sku):
+        db.add(
+            StockLot(
+                warehouse_code=balance.warehouse_code, item_sku=balance.item_sku,
+                seq=new_lot_seq(db), ref_no=ref_no, qty_remaining=qty,
+            )
+        )
+
+
+def _can_consume(kind: str, balance: InventoryBalance | None, qty: int) -> bool:
+    """Syarat saldo operasi pengurang stok baik terpenuhi; bila tidak, cabang validasi di `_apply` yang melapor lebih dulu."""
+    if kind not in _LOT_CONSUME or balance is None:
+        return False
+    if kind == ISSUE:
+        return balance.qty_reserved >= qty and balance.qty_physical >= qty
+    return balance.qty_available >= qty
+
+
 def _apply(
     db: Session,
     *,
@@ -121,6 +184,7 @@ def _apply(
     _check_qty(qty)
     balance = _lock(db, warehouse_code, item_sku, create)
     available = balance.qty_available if balance is not None else 0
+    lot_plan = _plan_lots(db, kind, warehouse_code, item_sku, qty) if _can_consume(kind, balance, qty) else []
 
     if kind == RECEIVE or kind == RETURN_GOOD:
         balance.qty_physical += qty
@@ -161,6 +225,7 @@ def _apply(
     else:  # pragma: no cover - dijaga oleh fungsi publik di bawah
         raise ValueError(kind)
 
+    _apply_lots(db, kind, balance, qty, lot_plan, ref_no)
     return _record(db, balance, kind, qty, ref_type, ref_no, correlation_id, actor)
 
 

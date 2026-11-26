@@ -33,6 +33,18 @@ class ProcurementPort(Protocol):
         """Buat (atau kembalikan) PR untuk permintaan barang itu dan kembalikan `pr_no`."""
         ...
 
+    def request_low_stock_purchase(
+        self,
+        db: Session,
+        *,
+        item_sku: str,
+        warehouse_code: str,
+        qty: int,
+        correlation_id: str,
+    ) -> str | None:
+        """Buat PR `LOW_STOCK` untuk SKU dan gudang itu; idempoten: bila sudah ada PR `LOW_STOCK` terbuka
+        untuk SKU dan gudang yang sama, kembalikan nomornya (atau `None`) tanpa membuat PR kedua."""
+
 
 class AssetPort(Protocol):
     """Diimplementasikan Slice C (SCM-C-01). Semua perubahan status unit lewat port ini."""
@@ -66,7 +78,7 @@ class AssetPort(Protocol):
         ...
 
     def mark_returned(self, db: Session, *, serial_numbers: list[str]) -> None:
-        """`WITH_TECHNICIAN` -> `RETURNED` (menunggu pemeriksaan)."""
+        """`WITH_TECHNICIAN` -> `RETURNED` (menunggu pemeriksaan). Unit yang sudah `FAULTY` dilewati."""
         ...
 
     def mark_faulty(self, db: Session, *, serial_number: str, notes: str | None = None) -> None:

@@ -1,3 +1,6 @@
 """Slice A: permintaan barang, reservasi, pengeluaran, laporan pemakaian."""
+from app.core.ports import ports
+from app.stock import jobs  # noqa: F401  (mendaftarkan pekerjaan berkala)
+from app.stock.service import StockRequestService
 
-# Daftarkan implementasi port di sini bila issue slice ini menyediakannya: StockRequestPort (SCM-A-09).
+ports.stock_requests = StockRequestService()

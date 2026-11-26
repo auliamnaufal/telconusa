@@ -1,4 +1,4 @@
-"""Penerbitan event lewat outbox (`shared.outbox`)."""
+"""Penerbitan event lewat outbox (`shared.outbox`) dan latar belakang aplikasi."""
 import asyncio
 from contextlib import asynccontextmanager
 from typing import Any
@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from shared.outbox import enqueue_event, run_relay
 
+from app.core.jobs import JOBS, run_job_loop
 from app.core.models import DeadLetterEvent, OutboxEvent
 from app.database import SessionLocal
 
@@ -24,12 +25,16 @@ def publish(db: Session, event_type: str, correlation_id: str, data: dict[str, A
 
 @asynccontextmanager
 async def relay_lifespan(_: FastAPI):
-    relay = asyncio.create_task(run_relay(SessionLocal, OutboxEvent, DeadLetterEvent))
+    """Jalankan relay outbox dan semua pekerjaan berkala terdaftar selama aplikasi hidup."""
+    tasks = [asyncio.create_task(run_relay(SessionLocal, OutboxEvent, DeadLetterEvent))]
+    tasks += [asyncio.create_task(run_job_loop(job, SessionLocal)) for job in JOBS.values()]
     try:
         yield
     finally:
-        relay.cancel()
-        try:
-            await relay
-        except asyncio.CancelledError:
-            pass
+        for task in tasks:
+            task.cancel()
+        for task in tasks:
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass

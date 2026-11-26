@@ -99,6 +99,20 @@ class StockMovement(Base):
     created_at = Column(DateTime, server_default=func.now())
 
 
+class StockLot(Base):
+    """Batch stok non-serial untuk FIFO (SCM-A-11). Hanya stok baik: jumlah semua lot = fisik - rusak."""
+
+    __tablename__ = "stock_lots"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    warehouse_code = Column(String(16), ForeignKey("warehouses.code"), nullable=False, index=True)
+    item_sku = Column(String(20), ForeignKey("items.sku"), nullable=False, index=True)
+    seq = Column(BigInteger, nullable=False, index=True)  # urutan masuk; FIFO mengurutkan menurut seq
+    ref_no = Column(String(40), nullable=True)  # GR-... atau nomor permintaan asal
+    qty_remaining = Column(Integer, nullable=False)
+    received_at = Column(DateTime, server_default=func.now())
+
+
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 

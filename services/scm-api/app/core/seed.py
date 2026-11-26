@@ -1,8 +1,8 @@
 """Seed data inti: gudang, barang, vendor, saldo awal. Idempoten."""
 from sqlalchemy.orm import Session
 
-from app.core.codes import new_vendor_code
-from app.core.models import InventoryBalance, Item, Vendor, Warehouse
+from app.core.codes import new_lot_seq, new_vendor_code
+from app.core.models import InventoryBalance, Item, StockLot, Vendor, Warehouse
 
 WAREHOUSES = [
     ("WH-BKS", "Gudang Pusat Bekasi", "JKT"),
@@ -68,6 +68,24 @@ def seed_core(db: Session) -> None:
                 InventoryBalance(
                     warehouse_code=warehouse, item_sku=sku, qty_physical=physical,
                     qty_reserved=reserved, qty_damaged=damaged,
+                )
+            )
+    db.flush()
+
+    # Satu lot awal per saldo non-serial (stok baik = fisik - rusak).
+    serialized = {item.sku for item in db.query(Item).filter(Item.is_serialized.is_(True))}
+    for balance in db.query(InventoryBalance).order_by(InventoryBalance.warehouse_code, InventoryBalance.item_sku):
+        good = balance.qty_physical - balance.qty_damaged
+        has_lot = (
+            db.query(StockLot)
+            .filter(StockLot.warehouse_code == balance.warehouse_code, StockLot.item_sku == balance.item_sku)
+            .first()
+        )
+        if balance.item_sku not in serialized and good > 0 and has_lot is None:
+            db.add(
+                StockLot(
+                    warehouse_code=balance.warehouse_code, item_sku=balance.item_sku,
+                    seq=new_lot_seq(db), ref_no="SEED", qty_remaining=good,
                 )
             )
     db.flush()

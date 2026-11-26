@@ -39,3 +39,8 @@ def new_serial_number(db: Session) -> str:
 
 def new_vendor_code(db: Session) -> str:
     return next_code(db, IdCounter, "VEN", "VEN-{n:04d}")
+
+
+def new_lot_seq(db: Session) -> int:
+    """Urutan masuk batch stok (naik terus; dasar FIFO)."""
+    return int(next_code(db, IdCounter, "LOT", "{n}"))

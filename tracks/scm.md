@@ -45,6 +45,36 @@ consumes:
 
 SCM memiliki barang dan stok, daftar barang per paket (`PackageKit`), permintaan barang dari tiket (`StockRequest`), pengadaan, dan retur. Semua status barang diubah staf SCM, termasuk `WITH_TECHNICIAN`. Teknisi membawa satu paket barang sesuai paketnya dan mengembalikan yang tidak terpakai.
 
+## Dokumen kerja SCM
+
+Spesifikasi, rencana, glosarium, dan pekerjaan track ini ada di `tracks/scm/` (dimiliki Kelompok SCM, bukan area bersama).
+
+| Berkas | Isi |
+| :--- | :--- |
+| `tracks/scm/spec.md` | Spesifikasi lengkap: model data, status, alur, API, event, layar, tingkat (tier) |
+| `tracks/scm/plan.md` | Pembagian slice, fase, aturan kerja tim, definisi selesai |
+| `tracks/scm/issues/` | Satu berkas per issue dengan `status`, `owner`, `touches`, kriteria penerimaan; indeks di `issues/README.md` |
+| `tracks/scm/GLOSSARY.md` | Istilah SCM (melengkapi glosarium `CONTEXT.md`) |
+| `tracks/scm/contract-extension.md` | Usulan perluasan kontrak bersama |
+| `tracks/scm/docs/adr/` | Keputusan arsitektur SCM |
+
+**Alur agen pemrograman SCM:** baca `services/scm-api/AGENTS.md` atau `apps/scm-web/AGENTS.md`; kerjakan hanya satu issue dari `tracks/scm/issues/`, sesuai `touches`; perbarui `status` issue dan baris kontrak di berkas ini; jalankan `python tools/check_contracts.py`.
+
+Backlog di bawah dikerjakan oleh issue berikut:
+
+| Temuan backlog | Issue |
+| :--- | :--- |
+| P0 event tanpa tanda tangan; P1 outbox `SENT` tanpa relay | `SCM-0-01`, `SCM-0-02` |
+| P0 cek anggaran gagal-buka | `SCM-B-01`, `SCM-B-02` |
+| P0 PO langsung `APPROVED` | `SCM-B-02`, `SCM-B-03` |
+| P1 belum ada `StockRequest` | `SCM-A-01` sampai `SCM-A-10` |
+| P1 daftar barang tertanam | `SCM-D-02` |
+| P1 `GET /stock/{sku}` tanpa autentikasi | `SCM-D-03` |
+| P1 event lama `kit.reconciled` dan nomor seri tidak `INSTALLED` | `SCM-A-06`, `SCM-C-01` |
+| P1 anggaran tidak ditahan, tidak ada goods receipt | `SCM-B-04`; `po.approved` setelah kontrak (`SCM-D-08`) |
+| P1 nomor PO dari `count()+1` | `SCM-B-02` |
+| P2 siklus P2P penuh | Tier 2 dan 3 di `tracks/scm/spec.md` bagian 2 |
+
 ## Slice requirements (acceptance untuk demo)
 
 1. **Daftar barang per paket** dimiliki SCM: `GET /api/v1/package-kits/{sku}` (contoh `HOME-50` = 1 ONT-01 + 50 m CBL-FO), scope `packagekits:read`.

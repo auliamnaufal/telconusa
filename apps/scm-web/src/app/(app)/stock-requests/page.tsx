@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import { StockRequestList } from "@/features/stock-requests/StockRequestList";
 
 export default function Page() {
-  return <PlaceholderPage title="Permintaan Barang" issue="SCM-A-10" />;
+  return <StockRequestList />;
 }

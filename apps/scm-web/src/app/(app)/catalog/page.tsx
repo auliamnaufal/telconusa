@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import { Catalog } from "@/features/catalog/Catalog";
 
 export default function Page() {
-  return <PlaceholderPage title="Katalog" issue="SCM-D-05" />;
+  return <Catalog />;
 }

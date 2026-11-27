@@ -5,7 +5,7 @@ slice: D
 tier: 1
 priority: P1
 owner: mike
-status: TODO
+status: DONE
 contract: "none"
 depends_on: [SCM-0, SCM-0-06, SCM-D-01, SCM-D-03, SCM-D-04]
 touches:
@@ -30,9 +30,9 @@ Tampilan awal setiap pengguna SCM.
 
 ## Kriteria penerimaan
 
-- [ ] `npm run build` lulus.
-- [ ] Angka dashboard sama dengan hasil `GET /dashboard/summary`.
-- [ ] Saldo rusak tampil terpisah dari tersedia.
+- [x] `npm run build` lulus.
+- [x] Angka dashboard sama dengan hasil `GET /dashboard/summary`.
+- [x] Saldo rusak tampil terpisah dari tersedia.
 
 ## Tes
 
@@ -40,6 +40,6 @@ Tampilan awal setiap pengguna SCM.
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

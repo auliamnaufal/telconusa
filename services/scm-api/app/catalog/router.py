@@ -1,7 +1,8 @@
 """Endpoint HTTP Slice D.
 
 Data master (SCM-D-01), pengelolaan paket (SCM-D-02), `city_code` dan `/stock/balances` (SCM-D-03) berstatus DRAFT di `tracks/scm/contract-extension.md`;
-`GET /package-kits/{sku}` dan `GET /stock/{sku}` ada di `contracts/openapi/scm.yaml`.
+`GET /package-kits/{sku}`, `GET /stock/{sku}`, dan `GET /dashboard/summary` (SCM-D-04; kolom KPI tambahan masih DRAFT) ada di
+`contracts/openapi/scm.yaml`.
 """
 from decimal import Decimal
 from typing import Any
@@ -232,3 +233,14 @@ def get_stock(
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     return service.stock_availability(db, sku, warehouse_code, city_code)
+
+
+# ---------------------------------------------------------------------------- dashboard
+
+
+@router.get("/dashboard/summary")
+def dashboard_summary(
+    _: Actor = Depends(require_scm_roles()),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    return service.dashboard_summary(db)

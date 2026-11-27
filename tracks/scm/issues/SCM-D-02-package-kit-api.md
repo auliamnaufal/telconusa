@@ -5,7 +5,7 @@ slice: D
 tier: 1
 priority: P0
 owner: mike
-status: TODO
+status: DONE
 contract: "K (`GET /package-kits/{sku}`) + DRAFT (admin)"
 depends_on: [SCM-0]
 touches:
@@ -27,9 +27,9 @@ Langkah 4 alur demo: CRM mengambil daftar barang paket dan menyalinnya ke tiket.
 
 ## Kriteria penerimaan
 
-- [ ] `HOME-50` menjawab 1 `ONT-01` UNIT dan 50 `CBL-FO` METER; sama dengan contoh kontrak.
-- [ ] Tanpa token: `401`; scope salah: `403`; `MOB-PRE-50`: `404`.
-- [ ] `PUT` dengan SKU barang tak dikenal: `422`.
+- [x] `HOME-50` menjawab 1 `ONT-01` UNIT dan 50 `CBL-FO` METER; sama dengan contoh kontrak.
+- [x] Tanpa token: `401`; scope salah: `403`; `MOB-PRE-50`: `404`.
+- [x] `PUT` dengan SKU barang tak dikenal: `422`.
 
 ## Tes
 
@@ -37,6 +37,6 @@ Langkah 4 alur demo: CRM mengambil daftar barang paket dan menyalinnya ke tiket.
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

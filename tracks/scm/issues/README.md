@@ -68,7 +68,7 @@ Aturan `depends_on`: hanya Slice 0 atau issue sebelumnya di slice yang sama. Sat
 | Issue | Judul | Tier | Prioritas | Status | Owner |
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | [SCM-D-01](SCM-D-01-master-data-api.md) | API data master: barang, gudang, vendor | 1 | P1 | DONE | mike |
-| [SCM-D-02](SCM-D-02-package-kit-api.md) | Daftar barang paket: API untuk CRM dan pengelolaan | 1 | P0 | TODO | mike |
+| [SCM-D-02](SCM-D-02-package-kit-api.md) | Daftar barang paket: API untuk CRM dan pengelolaan | 1 | P0 | DONE | mike |
 | [SCM-D-03](SCM-D-03-stock-availability-api.md) | API stok indikatif untuk CRM dan saldo per gudang | 1 | P0 | TODO | mike |
 | [SCM-D-04](SCM-D-04-dashboard-summary-api.md) | API ringkasan dashboard | 1 | P1 | TODO | mike |
 | [SCM-D-05](SCM-D-05-web-dashboard-stock-catalog.md) | Layar dashboard, stok, dan katalog | 1 | P1 | TODO | mike |

@@ -1,4 +1,4 @@
-"""Logika bisnis Slice D: data master barang, gudang, vendor (SCM-D-01).
+"""Logika bisnis Slice D: data master (SCM-D-01) dan daftar barang paket (SCM-D-02).
 
 Semua fungsi berjalan di transaksi pemanggil dan tidak melakukan commit.
 """
@@ -8,6 +8,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Query, Session
 
 from app.assets.models import SerializedUnit
+from app.catalog.models import PackageKit, PackageKitLine
 from app.core import audit
 from app.core.auth import Actor
 from app.core.codes import new_vendor_code
@@ -158,4 +159,59 @@ def update_vendor(db: Session, code: str, changes: dict[str, Any], actor: Actor)
     db.flush()
     after = vendor_to_dict(vendor)
     audit.record(db, actor, "vendor.updated", "vendor", code, {"before": before, "after": after})
+    return after
+
+
+# ---------------------------------------------------------------------------- paket
+
+
+def get_kit(db: Session, service_sku: str) -> PackageKit:
+    kit = db.get(PackageKit, service_sku)
+    if kit is None:
+        raise ScmError(
+            "PACKAGE_KIT_NOT_FOUND",
+            f"Paket {service_sku} belum punya daftar barang",
+            404,
+            {"service_sku": service_sku},
+        )
+    return kit
+
+
+def list_kits(db: Session, page: int, limit: int) -> tuple[list[PackageKit], int]:
+    return _page(db.query(PackageKit), PackageKit.service_sku, page, limit)
+
+
+def kit_to_dict(db: Session, kit: PackageKit) -> dict[str, Any]:
+    """Bentuk respons `getPackageKit` di `contracts/openapi/scm.yaml`."""
+    lines = sorted(kit.lines, key=lambda line: line.item_sku)
+    names = {item.sku: item.name for item in db.query(Item).filter(Item.sku.in_([line.item_sku for line in lines]))}
+    return {
+        "service_sku": kit.service_sku,
+        "items": [
+            {"item_sku": line.item_sku, "name": names[line.item_sku], "qty": line.qty, "unit": line.unit}
+            for line in lines
+        ],
+    }
+
+
+def replace_kit(db: Session, service_sku: str, lines: list[tuple[str, int]], actor: Actor) -> dict[str, Any]:
+    """Ganti seluruh baris paket; buat paket bila belum ada. Satuan diambil dari master barang."""
+    skus = [sku for sku, _ in lines]
+    duplicates = sorted({sku for sku in skus if skus.count(sku) > 1})
+    if duplicates:
+        raise ScmError("DUPLICATE_KIT_LINE", "Satu barang hanya boleh muncul sekali", 422, {"item_skus": duplicates})
+    items = {item.sku: item for item in db.query(Item).filter(Item.sku.in_(skus))}
+    unknown = [sku for sku in skus if sku not in items]
+    if unknown:
+        raise ScmError("ITEM_NOT_FOUND", "Barang tidak dikenal", 422, {"item_skus": unknown})
+
+    kit = db.get(PackageKit, service_sku)
+    before = kit_to_dict(db, kit) if kit is not None else None
+    if kit is None:
+        kit = PackageKit(service_sku=service_sku)
+        db.add(kit)
+    kit.lines = [PackageKitLine(item_sku=sku, qty=qty, unit=items[sku].unit) for sku, qty in lines]
+    db.flush()
+    after = kit_to_dict(db, kit)
+    audit.record(db, actor, "package_kit.replaced", "package_kit", service_sku, {"before": before, "after": after})
     return after

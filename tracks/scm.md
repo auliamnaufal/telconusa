@@ -15,7 +15,7 @@ owns:
 provides:
   api:
   - {id: 'GET /api/v1/stock/{sku}', status: MOCKED, since: '2026-11-25'}
-  - {id: 'GET /api/v1/package-kits/{sku}', status: MOCKED, since: '2026-11-25'}
+  - {id: 'GET /api/v1/package-kits/{sku}', status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_package_kit.py}
   - {id: GET /api/v1/stock-requests, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_stock_request_api.py}
   - {id: 'GET /api/v1/stock-requests/{stock_request_no}', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_stock_request_api.py}
   - {id: 'POST /api/v1/stock-requests/{stock_request_no}/issue', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_issue.py}

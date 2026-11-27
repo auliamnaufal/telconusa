@@ -5,7 +5,7 @@ slice: D
 tier: 1
 priority: P1
 owner: mike
-status: TODO
+status: DONE
 contract: "K (`GET /dashboard/summary`) + DRAFT (kolom tambahan)"
 depends_on: [SCM-0, SCM-D-03]
 touches:
@@ -28,10 +28,10 @@ Sumber data dashboard SCM.
 
 ## Kriteria penerimaan
 
-- [ ] Nilai persediaan benar untuk seed.
-- [ ] `open_stock_requests` menghitung status `REQUESTED`, `PENDING_STOCK`, `READY_TO_ISSUE`, `ISSUED`.
-- [ ] `return_pending` sama dengan jumlah permintaan `ISSUED`.
-- [ ] Bentuk lolos contoh di kontrak.
+- [x] Nilai persediaan benar untuk seed.
+- [x] `open_stock_requests` menghitung status `REQUESTED`, `PENDING_STOCK`, `READY_TO_ISSUE`, `ISSUED`.
+- [x] `return_pending` sama dengan jumlah permintaan `ISSUED`.
+- [x] Bentuk lolos contoh di kontrak.
 
 ## Tes
 
@@ -39,6 +39,6 @@ Sumber data dashboard SCM.
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

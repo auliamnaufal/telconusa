@@ -1,10 +1,10 @@
-"""Logika bisnis Slice D: data master (SCM-D-01), daftar barang paket (SCM-D-02), API stok (SCM-D-03).
+"""Logika bisnis Slice D: data master (SCM-D-01), daftar barang paket (SCM-D-02), API stok (SCM-D-03), dashboard (SCM-D-04).
 
 Semua fungsi berjalan di transaksi pemanggil dan tidak melakukan commit.
 """
 from typing import Any
 
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Query, Session
 
 from app.assets.models import SerializedUnit
@@ -14,6 +14,8 @@ from app.core.auth import Actor
 from app.core.codes import new_vendor_code
 from app.core.errors import ScmError
 from app.core.models import InventoryBalance, Item, Vendor, Warehouse
+from app.procurement.models import PurchaseOrder
+from app.stock.models import StockRequest
 
 ITEM_FIELDS = ("name", "unit", "unit_cost", "reorder_point", "safety_stock", "is_serialized", "specification")
 VENDOR_FIELDS = ("name", "category", "rating_score")
@@ -292,4 +294,48 @@ def balance_to_dict(balance: InventoryBalance, item: Item) -> dict[str, Any]:
         "qty_available": balance.qty_available,
         "reorder_point": item.reorder_point,
         "below_rop": balance.qty_available < item.reorder_point,
+    }
+
+
+# ---------------------------------------------------------------------------- dashboard
+
+# Tabel slice lain hanya dibaca lewat kueri; kode slice lain tidak dipanggil.
+OPEN_STOCK_REQUEST_STATUSES = ("REQUESTED", "PENDING_STOCK", "READY_TO_ISSUE", "ISSUED")
+OPEN_PURCHASE_ORDER_STATUSES = ("DRAFT", "PENDING_APPROVAL", "APPROVED", "PARTIALLY_RECEIVED")
+RECENT_STOCK_REQUESTS = 10
+
+
+def _count_stock_requests(db: Session, *statuses: str) -> int:
+    return db.query(StockRequest).filter(StockRequest.status.in_(statuses)).count()
+
+
+def dashboard_summary(db: Session) -> dict[str, Any]:
+    valuation = (
+        db.query(func.coalesce(func.sum((InventoryBalance.qty_physical - InventoryBalance.qty_damaged) * Item.unit_cost), 0))
+        .select_from(InventoryBalance)
+        .join(Item, Item.sku == InventoryBalance.item_sku)
+        .scalar()
+    )
+    recent = (
+        db.query(StockRequest)
+        .order_by(StockRequest.created_at.desc(), StockRequest.stock_request_no.desc())
+        .limit(RECENT_STOCK_REQUESTS)
+        .all()
+    )
+    return {
+        "kpis": {
+            "total_skus": db.query(Item).count(),
+            "inventory_valuation_idr": int(valuation),
+            "open_stock_requests": _count_stock_requests(db, *OPEN_STOCK_REQUEST_STATUSES),
+            "return_pending": _count_stock_requests(db, "ISSUED"),
+            "active_reservations": _count_stock_requests(db, "READY_TO_ISSUE"),
+            "open_purchase_orders": db.query(PurchaseOrder)
+            .filter(PurchaseOrder.status.in_(OPEN_PURCHASE_ORDER_STATUSES))
+            .count(),
+            "ont_installed": db.query(SerializedUnit).filter(SerializedUnit.status == "INSTALLED").count(),
+        },
+        "stock_requests": [
+            {"stock_request_no": row.stock_request_no, "ticket_code": row.ticket_code, "status": row.status}
+            for row in recent
+        ],
     }

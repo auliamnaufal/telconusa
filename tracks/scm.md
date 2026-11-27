@@ -22,7 +22,7 @@ provides:
   - {id: 'POST /api/v1/stock-requests/{stock_request_no}/issue-extra', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_issue_extra.py}
   - {id: 'POST /api/v1/stock-requests/{stock_request_no}/flag-damaged', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_flag_damaged.py}
   - {id: POST /api/v1/purchase-orders, status: MOCKED, since: '2026-11-25'}
-  - {id: GET /api/v1/dashboard/summary, status: MOCKED, since: '2026-11-25'}
+  - {id: GET /api/v1/dashboard/summary, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_dashboard.py}
   events:
   - {id: stockrequest.ready, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_ticket_created.py}
   - {id: stockrequest.pending, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_ticket_created.py}

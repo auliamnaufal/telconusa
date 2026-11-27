@@ -5,7 +5,7 @@ slice: D
 tier: 1
 priority: P1
 owner: mike
-status: TODO
+status: DONE
 contract: "DRAFT"
 depends_on: [SCM-0]
 touches:
@@ -28,9 +28,9 @@ Layar katalog dan form PO butuh daftar barang, gudang, vendor.
 
 ## Kriteria penerimaan
 
-- [ ] Membuat barang baru muncul di daftar; SKU ganda `409`.
-- [ ] Mengubah `is_serialized` pada ONT-01 yang sudah punya unit: `409`.
-- [ ] Role selain `SCM_MANAGER` tidak bisa menulis (`403`).
+- [x] Membuat barang baru muncul di daftar; SKU ganda `409`.
+- [x] Mengubah `is_serialized` pada ONT-01 yang sudah punya unit: `409`.
+- [x] Role selain `SCM_MANAGER` tidak bisa menulis (`403`).
 
 ## Tes
 
@@ -38,6 +38,6 @@ Layar katalog dan form PO butuh daftar barang, gudang, vendor.
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

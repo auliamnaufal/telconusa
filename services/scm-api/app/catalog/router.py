@@ -1,4 +1,8 @@
-"""Endpoint HTTP Slice D: data master barang, gudang, vendor (`tracks/scm/contract-extension.md`, DRAFT)."""
+"""Endpoint HTTP Slice D.
+
+Data master (SCM-D-01) dan pengelolaan paket (SCM-D-02) berstatus DRAFT di `tracks/scm/contract-extension.md`;
+`GET /package-kits/{sku}` ada di `contracts/openapi/scm.yaml`.
+"""
 from decimal import Decimal
 from typing import Any
 
@@ -8,7 +12,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.catalog import service
-from app.core.auth import ROLES_MANAGER, Actor, require_scm_roles
+from app.core.auth import ROLES_MANAGER, Actor, require_scm_roles, require_scope
 from app.core.idempotency import idempotency_key, run_idempotent
 from app.database import get_db
 
@@ -46,6 +50,15 @@ class VendorUpdateBody(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=120)
     category: str | None = Field(None, min_length=1, max_length=40)
     rating_score: Decimal | None = Field(None, ge=0, le=5, decimal_places=2)
+
+
+class KitLineBody(BaseModel):
+    item_sku: str = Field(min_length=1)
+    qty: int = Field(gt=0)
+
+
+class KitReplaceBody(BaseModel):
+    lines: list[KitLineBody] = Field(min_length=1)
 
 
 def _changes(body: BaseModel) -> dict[str, Any]:
@@ -150,5 +163,42 @@ def update_vendor(
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     result = service.update_vendor(db, code, _changes(body), actor)
+    db.commit()
+    return result
+
+
+# ---------------------------------------------------------------------------- paket
+
+
+@router.get("/package-kits")
+def list_package_kits(
+    response: Response,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    _: Actor = Depends(require_scm_roles()),
+    db: Session = Depends(get_db),
+) -> list[dict[str, Any]]:
+    rows, total = service.list_kits(db, page, limit)
+    response.headers["X-Total-Count"] = str(total)
+    return [service.kit_to_dict(db, row) for row in rows]
+
+
+@router.get("/package-kits/{sku}")
+def get_package_kit(
+    sku: str,
+    _: dict = Depends(require_scope("packagekits:read")),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    return service.kit_to_dict(db, service.get_kit(db, sku))
+
+
+@router.put("/package-kits/{sku}")
+def replace_package_kit(
+    sku: str,
+    body: KitReplaceBody,
+    actor: Actor = Depends(require_scm_roles(*ROLES_MANAGER)),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    result = service.replace_kit(db, sku, [(line.item_sku, line.qty) for line in body.lines], actor)
     db.commit()
     return result

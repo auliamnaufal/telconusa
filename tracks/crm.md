@@ -54,8 +54,11 @@ consumes:
   events:
   - {id: invoice.issued, from: finance, status: PLANNED}
   - {id: invoice.paid, from: finance, status: PLANNED}
+  - {id: shipment.delivered, from: scm, status: PLANNED}
   - {id: stock.issued, from: scm, status: PLANNED}
+  - {id: stock.low, from: scm, status: PLANNED}
   - {id: stock.returned, from: scm, status: PLANNED}
+  - {id: stockrequest.cancelled, from: scm, status: PLANNED}
   - {id: stockrequest.pending, from: scm, status: PLANNED}
   - {id: stockrequest.ready, from: scm, status: PLANNED}
 ---
@@ -122,7 +125,9 @@ Temuan review kode `services/crm-api` per 2026-11-25. Baseline sengaja tidak men
 
 ## Requests
 
-_Belum ada. Tim lain menambah baris `- dari <track>, <tanggal>: <permintaan>` lewat PR._
+- dari scm, 2026-11-27: terbitkan event `ticket.cancelled` (kontrak baru) agar SCM bisa melepas Reservasi saat tiket dibatalkan.
+- dari scm, 2026-11-27: terima `stockrequest.cancelled` dan tambah nilai `CANCELLED` pada enum `materials_status` (`contracts/variable_standards.md` bagian 4).
+- dari scm, 2026-11-27: `stock.low` dan `shipment.delivered` (Tier 2) tersedia bila CRM ingin menampilkan peringatan stok atau status transfer.
 
 ## Decisions
 

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shipment.delivered",
+  "title": "shipment.delivered",
+  "description": "Transfer antar-gudang diterima di gudang tujuan (Tier 2).",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "transfer_no": {
+      "type": "string"
+    },
+    "from_warehouse_code": {
+      "type": "string"
+    },
+    "to_warehouse_code": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_sku": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_sku",
+          "qty"
+        ]
+      }
+    },
+    "delivered_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "transfer_no",
+    "from_warehouse_code",
+    "to_warehouse_code",
+    "lines",
+    "delivered_at"
+  ]
+}

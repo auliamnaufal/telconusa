@@ -1,7 +1,7 @@
 ---
 track: scm
 owner_team: Kelompok SCM
-updated: '2026-11-25'
+updated: '2026-11-27'
 folders: [apps/scm-web, services/scm-api]
 owns:
 - {entity: Item, id_format: SKU}
@@ -23,11 +23,42 @@ provides:
   - {id: 'POST /api/v1/stock-requests/{stock_request_no}/flag-damaged', status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_flag_damaged.py}
   - {id: POST /api/v1/purchase-orders, status: MOCKED, since: '2026-11-25'}
   - {id: GET /api/v1/dashboard/summary, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_dashboard.py}
+  - {id: 'POST /api/v1/stock-requests/{stock_request_no}/cancel', status: LIVE, since: '2026-11-27', test: services/scm-api/tests/stock/test_cancel_expiry.py}
+  - {id: GET /api/v1/stock/balances, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_stock_api.py}
+  - {id: GET /api/v1/items, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_master_data.py}
+  - {id: POST /api/v1/items, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_master_data.py}
+  - {id: 'PATCH /api/v1/items/{sku}', status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_master_data.py}
+  - {id: GET /api/v1/warehouses, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_master_data.py}
+  - {id: GET /api/v1/vendors, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_master_data.py}
+  - {id: POST /api/v1/vendors, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_master_data.py}
+  - {id: 'PATCH /api/v1/vendors/{code}', status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_master_data.py}
+  - {id: GET /api/v1/package-kits, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_package_kit.py}
+  - {id: 'PUT /api/v1/package-kits/{sku}', status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_package_kit.py}
+  - {id: GET /api/v1/audit-logs, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_audit_logs.py}
+  - {id: POST /api/v1/transfers, status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_transfer.py}
+  - {id: 'POST /api/v1/transfers/{transfer_no}/dispatch', status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_transfer.py}
+  - {id: 'POST /api/v1/transfers/{transfer_no}/receive', status: LIVE, since: '2026-11-27', test: services/scm-api/tests/catalog/test_transfer.py}
+  - {id: GET /api/v1/assets/units, status: MOCKED, since: '2026-11-27'}
+  - {id: 'GET /api/v1/assets/units/{serial_number}', status: MOCKED, since: '2026-11-27'}
+  - {id: 'POST /api/v1/assets/units/{serial_number}/inspect', status: MOCKED, since: '2026-11-27'}
+  - {id: GET /api/v1/purchase-requests, status: MOCKED, since: '2026-11-27'}
+  - {id: 'GET /api/v1/purchase-requests/{purchase_request_no}', status: MOCKED, since: '2026-11-27'}
+  - {id: 'POST /api/v1/purchase-requests/{purchase_request_no}/create-po', status: MOCKED, since: '2026-11-27'}
+  - {id: GET /api/v1/purchase-orders, status: MOCKED, since: '2026-11-27'}
+  - {id: 'GET /api/v1/purchase-orders/{po_no}', status: MOCKED, since: '2026-11-27'}
+  - {id: 'POST /api/v1/purchase-orders/{po_no}/approve', status: MOCKED, since: '2026-11-27'}
+  - {id: 'POST /api/v1/purchase-orders/{po_no}/reject', status: MOCKED, since: '2026-11-27'}
+  - {id: 'POST /api/v1/purchase-orders/{po_no}/receipts', status: MOCKED, since: '2026-11-27'}
   events:
   - {id: stockrequest.ready, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_ticket_created.py}
   - {id: stockrequest.pending, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_ticket_created.py}
   - {id: stock.issued, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_issue.py}
   - {id: stock.returned, status: LIVE, since: '2026-11-26', test: services/scm-api/tests/stock/test_items_reported.py}
+  - {id: stockrequest.cancelled, status: MOCKED, since: '2026-11-27'}
+  - {id: po.approved, status: MOCKED, since: '2026-11-27'}
+  - {id: goods.received, status: MOCKED, since: '2026-11-27'}
+  - {id: stock.low, status: MOCKED, since: '2026-11-27'}
+  - {id: shipment.delivered, status: MOCKED, since: '2026-11-27'}
 consumes:
   api:
   - {id: POST /api/v1/budgets/check, from: finance, status: PLANNED}

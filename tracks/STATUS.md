@@ -62,17 +62,48 @@ Consumers are shown as `track:status` using the status each consumer declares in
 | hrm | API | `GET /api/v1/referrals/{code}` | MOCKED | 2026-11-25 | crm:PLANNED |
 | hrm | API | `POST /api/v1/auth/login` | MOCKED | 2026-11-25 | - |
 | hrm | API | `POST /api/v1/referrals` | MOCKED | 2026-11-25 | - |
+| scm | API | `GET /api/v1/assets/units` | MOCKED | 2026-11-27 | - |
+| scm | API | `GET /api/v1/assets/units/{serial_number}` | MOCKED | 2026-11-27 | - |
+| scm | API | `GET /api/v1/audit-logs` | LIVE | 2026-11-27 | - |
 | scm | API | `GET /api/v1/dashboard/summary` | LIVE | 2026-11-27 | - |
+| scm | API | `GET /api/v1/items` | LIVE | 2026-11-27 | - |
+| scm | API | `GET /api/v1/package-kits` | LIVE | 2026-11-27 | - |
 | scm | API | `GET /api/v1/package-kits/{sku}` | LIVE | 2026-11-27 | crm:PLANNED |
+| scm | API | `GET /api/v1/purchase-orders` | MOCKED | 2026-11-27 | - |
+| scm | API | `GET /api/v1/purchase-orders/{po_no}` | MOCKED | 2026-11-27 | - |
+| scm | API | `GET /api/v1/purchase-requests` | MOCKED | 2026-11-27 | - |
+| scm | API | `GET /api/v1/purchase-requests/{purchase_request_no}` | MOCKED | 2026-11-27 | - |
 | scm | API | `GET /api/v1/stock-requests` | LIVE | 2026-11-26 | - |
 | scm | API | `GET /api/v1/stock-requests/{stock_request_no}` | LIVE | 2026-11-26 | - |
+| scm | API | `GET /api/v1/stock/balances` | LIVE | 2026-11-27 | - |
 | scm | API | `GET /api/v1/stock/{sku}` | LIVE | 2026-11-27 | crm:PLANNED |
+| scm | API | `GET /api/v1/vendors` | LIVE | 2026-11-27 | - |
+| scm | API | `GET /api/v1/warehouses` | LIVE | 2026-11-27 | - |
+| scm | API | `PATCH /api/v1/items/{sku}` | LIVE | 2026-11-27 | - |
+| scm | API | `PATCH /api/v1/vendors/{code}` | LIVE | 2026-11-27 | - |
+| scm | API | `POST /api/v1/assets/units/{serial_number}/inspect` | MOCKED | 2026-11-27 | - |
+| scm | API | `POST /api/v1/items` | LIVE | 2026-11-27 | - |
 | scm | API | `POST /api/v1/purchase-orders` | MOCKED | 2026-11-25 | - |
+| scm | API | `POST /api/v1/purchase-orders/{po_no}/approve` | MOCKED | 2026-11-27 | - |
+| scm | API | `POST /api/v1/purchase-orders/{po_no}/receipts` | MOCKED | 2026-11-27 | - |
+| scm | API | `POST /api/v1/purchase-orders/{po_no}/reject` | MOCKED | 2026-11-27 | - |
+| scm | API | `POST /api/v1/purchase-requests/{purchase_request_no}/create-po` | MOCKED | 2026-11-27 | - |
+| scm | API | `POST /api/v1/stock-requests/{stock_request_no}/cancel` | LIVE | 2026-11-27 | - |
 | scm | API | `POST /api/v1/stock-requests/{stock_request_no}/flag-damaged` | LIVE | 2026-11-26 | - |
 | scm | API | `POST /api/v1/stock-requests/{stock_request_no}/issue` | LIVE | 2026-11-26 | - |
 | scm | API | `POST /api/v1/stock-requests/{stock_request_no}/issue-extra` | LIVE | 2026-11-26 | - |
+| scm | API | `POST /api/v1/transfers` | LIVE | 2026-11-27 | - |
+| scm | API | `POST /api/v1/transfers/{transfer_no}/dispatch` | LIVE | 2026-11-27 | - |
+| scm | API | `POST /api/v1/transfers/{transfer_no}/receive` | LIVE | 2026-11-27 | - |
+| scm | API | `POST /api/v1/vendors` | LIVE | 2026-11-27 | - |
+| scm | API | `PUT /api/v1/package-kits/{sku}` | LIVE | 2026-11-27 | - |
+| scm | Event | `goods.received` | MOCKED | 2026-11-27 | finance:PLANNED |
+| scm | Event | `po.approved` | MOCKED | 2026-11-27 | finance:PLANNED |
+| scm | Event | `shipment.delivered` | MOCKED | 2026-11-27 | crm:PLANNED |
 | scm | Event | `stock.issued` | LIVE | 2026-11-26 | crm:PLANNED |
+| scm | Event | `stock.low` | MOCKED | 2026-11-27 | crm:PLANNED |
 | scm | Event | `stock.returned` | LIVE | 2026-11-26 | crm:PLANNED |
+| scm | Event | `stockrequest.cancelled` | MOCKED | 2026-11-27 | crm:PLANNED |
 | scm | Event | `stockrequest.pending` | LIVE | 2026-11-26 | crm:PLANNED |
 | scm | Event | `stockrequest.ready` | LIVE | 2026-11-26 | crm:PLANNED |
 
@@ -83,4 +114,4 @@ Consumers are shown as `track:status` using the status each consumer declares in
 | crm | 0 | 28 | 0 | 0 | 0 | 28 |
 | finance | 0 | 10 | 0 | 0 | 0 | 10 |
 | hrm | 0 | 6 | 0 | 0 | 0 | 6 |
-| scm | 0 | 1 | 12 | 0 | 0 | 13 |
+| scm | 0 | 17 | 27 | 0 | 0 | 44 |

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "po.approved",
+  "title": "po.approved",
+  "description": "PO disetujui seluruh jenjang; Finance menahan anggaran.",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "finance"
+  ],
+  "type": "object",
+  "properties": {
+    "po_no": {
+      "type": "string"
+    },
+    "purchase_request_no": {
+      "type": "string"
+    },
+    "vendor_code": {
+      "type": "string"
+    },
+    "total_amount": {
+      "type": "integer"
+    },
+    "cost_center_code": {
+      "type": "string"
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "employee_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "employee_id"
+        ]
+      }
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "po_no",
+    "vendor_code",
+    "total_amount",
+    "cost_center_code",
+    "approvals",
+    "approved_at"
+  ]
+}

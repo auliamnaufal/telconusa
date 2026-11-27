@@ -25,6 +25,8 @@ EVENT_SUBSCRIBERS: dict[str, list[str]] = {
     "stock.issued": [settings.CRM_API_URL],
     "ticket.items_reported": [settings.SCM_API_URL],
     "stock.returned": [settings.CRM_API_URL],
+    "stockrequest.cancelled": [settings.CRM_API_URL],
+    "stock.low": [settings.CRM_API_URL],
     "technician.rated": [settings.HRM_API_URL],
     # HRM -> Finance, owned by the HRM and Finance tracks (not part of the baseline contracts)
     "payroll.approved": [settings.FINANCE_API_URL],

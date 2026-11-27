@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stockrequest.cancelled",
+  "title": "stockrequest.cancelled",
+  "description": "Permintaan barang dibatalkan (manual atau reservasi kedaluwarsa); reservasi sudah dilepas.",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "stock_request_no": {
+      "type": "string"
+    },
+    "ticket_code": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "CANCELLED"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "RESERVATION_EXPIRED",
+        "MANUAL"
+      ]
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "stock_request_no",
+    "ticket_code",
+    "status",
+    "reason",
+    "cancelled_at"
+  ]
+}

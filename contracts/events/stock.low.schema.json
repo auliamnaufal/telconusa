@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stock.low",
+  "title": "stock.low",
+  "description": "Stok tersedia di satu gudang turun di bawah ROP (Tier 2).",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "crm"
+  ],
+  "type": "object",
+  "properties": {
+    "item_sku": {
+      "type": "string"
+    },
+    "warehouse_code": {
+      "type": "string"
+    },
+    "qty_available": {
+      "type": "integer"
+    },
+    "reorder_point": {
+      "type": "integer"
+    },
+    "purchase_request_no": {
+      "type": "string",
+      "nullable": true
+    }
+  },
+  "required": [
+    "item_sku",
+    "warehouse_code",
+    "qty_available",
+    "reorder_point"
+  ]
+}

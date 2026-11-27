@@ -81,7 +81,7 @@ Perhitungan payroll (gaji pokok, tunjangan operasional, insentif, BPJS, PPh 21, 
 
 ## Requests
 
-_Belum ada. Tim lain menambah baris `- dari <track>, <tanggal>: <permintaan>` lewat PR._
+- dari scm, 2026-11-27: konfirmasi nama role `FINANCE_MANAGER` dan `DIRECTOR` di JWT agar keduanya bisa menyetujui PO di `scm-web`.
 
 ## Decisions
 

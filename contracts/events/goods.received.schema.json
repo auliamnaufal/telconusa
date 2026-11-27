@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "goods.received",
+  "title": "goods.received",
+  "description": "Barang dari vendor diterima di gudang (GR); Finance mengakui persediaan.",
+  "x-publisher": "scm",
+  "x-consumers": [
+    "finance"
+  ],
+  "type": "object",
+  "properties": {
+    "gr_no": {
+      "type": "string"
+    },
+    "po_no": {
+      "type": "string"
+    },
+    "vendor_code": {
+      "type": "string"
+    },
+    "warehouse_code": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_sku": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "integer"
+          },
+          "unit_cost": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_sku",
+          "qty",
+          "unit_cost"
+        ]
+      }
+    },
+    "total_value": {
+      "type": "integer"
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "gr_no",
+    "po_no",
+    "vendor_code",
+    "warehouse_code",
+    "lines",
+    "total_value",
+    "received_at"
+  ]
+}

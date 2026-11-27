@@ -5,7 +5,7 @@ slice: D
 tier: 1
 priority: P1
 owner: mike
-status: TODO
+status: IN_PROGRESS
 contract: "DRAFT -> K"
 depends_on: [SCM-0]
 touches:
@@ -32,8 +32,8 @@ Area bersama: PR terpisah, review keempat track. Issue ini hanya menyiapkan dan 
 
 ## Kriteria penerimaan
 
-- [ ] `python tools/check_contracts.py --check` lulus.
-- [ ] PR tidak menyentuh `services/shared/` kecuali `EVENT_SUBSCRIBERS` yang memang diperlukan, dan hal itu disebut di deskripsi PR.
+- [x] `python tools/check_contracts.py --check` lulus.
+- [x] PR tidak menyentuh `services/shared/` kecuali `EVENT_SUBSCRIBERS` yang memang diperlukan, dan hal itu disebut di deskripsi PR.
 - [ ] Setelah di-merge, issue lanjutan penerbitan event dibuat (lihat `issues/README.md`).
 
 ## Tes

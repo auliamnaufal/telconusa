@@ -31,6 +31,17 @@ paths:
         schema:
           type: string
         example: WH-BDG
+      - name: city_code
+        in: query
+        required: false
+        description: Batasi ke gudang yang melayani kota ini; tanpa warehouse_code dan city_code, jumlah semua gudang.
+        schema:
+          type: string
+          enum:
+          - JKT
+          - BDG
+          - SBY
+        example: BDG
       security:
       - bearerAuth: []
       responses:
@@ -135,6 +146,100 @@ paths:
         '401':
           $ref: '#/components/responses/Error'
         '403':
+          $ref: '#/components/responses/Error'
+    put:
+      operationId: replacePackageKit
+      summary: Ganti seluruh daftar barang satu paket layanan
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      x-consumers: []
+      description: Paket dibuat bila belum ada. Satuan diambil dari master barang. 422 bila barang tak dikenal atau berulang.
+      parameters:
+      - name: sku
+        in: path
+        required: true
+        schema:
+          type: string
+        example: HOME-50
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lines:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      item_sku:
+                        type: string
+                      qty:
+                        type: integer
+                    required:
+                    - item_sku
+                    - qty
+              required:
+              - lines
+            example:
+              lines:
+              - item_sku: ONT-01
+                qty: 1
+              - item_sku: CBL-FO
+                qty: 50
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service_sku:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        name:
+                          type: string
+                        qty:
+                          type: integer
+                        unit:
+                          type: string
+                      required:
+                      - item_sku
+                      - name
+                      - qty
+                      - unit
+                required:
+                - service_sku
+                - items
+              example:
+                service_sku: HOME-50
+                items:
+                - item_sku: CBL-FO
+                  name: Kabel Fiber Optik Dropcore 1C
+                  qty: 50
+                  unit: METER
+                - item_sku: ONT-01
+                  name: Perangkat ONT Dual-Band GPON
+                  qty: 1
+                  unit: UNIT
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '422':
           $ref: '#/components/responses/Error'
   /api/v1/stock-requests:
     get:
@@ -308,6 +413,7 @@ paths:
   /api/v1/stock-requests/{stock_request_no}/issue:
     post:
       operationId: issueStockRequest
+      description: 'Kode 409: TECHNICIAN_NOT_ASSIGNED, SERIAL_NOT_RESERVED, INVALID_TRANSITION, INSUFFICIENT_STOCK.'
       summary: Staf SCM mengeluarkan paket barang ke teknisi
       tags:
       - scm
@@ -498,10 +604,9 @@ paths:
               - item_sku
               - qty
             example:
-              item_sku: RTR-AX
-              qty: 1
-              serial_number: SN-RTR-2026-000003
-              notes: Port LAN mati
+              item_sku: CBL-FO
+              qty: 5
+              notes: Kabel tertekuk saat dibawa
       security:
       - bearerAuth: []
       responses:
@@ -524,8 +629,8 @@ paths:
                 - qty_damaged
               example:
                 stock_request_no: SR-2026-000001
-                item_sku: RTR-AX
-                qty_damaged: 1
+                item_sku: CBL-FO
+                qty_damaged: 5
         '401':
           $ref: '#/components/responses/Error'
         '403':
@@ -536,6 +641,8 @@ paths:
     post:
       operationId: createPurchaseOrder
       summary: Pengadaan barang ke vendor (dipicu stok kurang)
+      description: PO lahir PENDING_APPROVAL. 409 BUDGET_INSUFFICIENT bila sisa anggaran Finance tidak cukup; 503
+        BUDGET_CHECK_UNAVAILABLE bila Finance tidak bisa dihubungi (PR tetap PENDING_BUDGET).
       tags:
       - scm
       x-auth: user
@@ -594,13 +701,94 @@ paths:
               example:
                 po_no: PO-2026-0002
                 total_amount: 35000000
-                status: APPROVED
+                status: PENDING_APPROVAL
                 budget_remaining_after_check: 215000000
         '401':
           $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Error'
         '409':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+    get:
+      operationId: listPurchaseOrders
+      summary: Daftar PO
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      - FINANCE_MANAGER
+      x-consumers: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+        example: PENDING_APPROVAL
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    po_no:
+                      type: string
+                    purchase_request_no:
+                      type: string
+                      nullable: true
+                    vendor_code:
+                      type: string
+                    total_amount:
+                      type: integer
+                    status:
+                      type: string
+                      enum:
+                      - DRAFT
+                      - PENDING_APPROVAL
+                      - APPROVED
+                      - PARTIALLY_RECEIVED
+                      - RECEIVED
+                      - CLOSED
+                      - REJECTED
+                      - CANCELLED
+                  required:
+                  - po_no
+                  - vendor_code
+                  - total_amount
+                  - status
+              example:
+              - po_no: PO-2026-0001
+                purchase_request_no: PR-2026-0001
+                vendor_code: VEN-0001
+                total_amount: 3500000
+                status: PENDING_APPROVAL
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
           $ref: '#/components/responses/Error'
   /api/v1/dashboard/summary:
     get:
@@ -636,6 +824,12 @@ paths:
                         type: integer
                       return_pending:
                         type: integer
+                      active_reservations:
+                        type: integer
+                      open_purchase_orders:
+                        type: integer
+                      ont_installed:
+                        type: integer
                     required:
                     - total_skus
                     - inventory_valuation_idr
@@ -665,6 +859,9 @@ paths:
                   inventory_valuation_idr: 120000000
                   open_stock_requests: 2
                   return_pending: 1
+                  active_reservations: 1
+                  open_purchase_orders: 1
+                  ont_installed: 12
                 stock_requests:
                 - stock_request_no: SR-2026-000001
                   ticket_code: TKT-000001
@@ -672,6 +869,2429 @@ paths:
         '401':
           $ref: '#/components/responses/Error'
         '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/stock-requests/{stock_request_no}/cancel:
+    post:
+      operationId: cancelStockRequest
+      summary: Batalkan permintaan barang dan lepas reservasinya
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      description: Menerima Idempotency-Key. 409 INVALID_TRANSITION bila status sudah ISSUED atau final.
+      parameters:
+      - name: stock_request_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: SR-2026-000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+              required:
+              - reason
+            example:
+              reason: Pelanggan membatalkan pemasangan
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stock_request_no:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - CANCELLED
+                required:
+                - stock_request_no
+                - status
+              example:
+                stock_request_no: SR-2026-000001
+                status: CANCELLED
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/stock/balances:
+    get:
+      operationId: listStockBalances
+      summary: Saldo per gudang dan barang
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      description: Jumlah baris di header X-Total-Count.
+      parameters:
+      - name: warehouse_code
+        in: query
+        required: false
+        schema:
+          type: string
+        example: WH-BKS
+      - name: item_sku
+        in: query
+        required: false
+        schema:
+          type: string
+        example: ONT-01
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    warehouse_code:
+                      type: string
+                    item_sku:
+                      type: string
+                    name:
+                      type: string
+                    unit:
+                      type: string
+                    qty_physical:
+                      type: integer
+                    qty_reserved:
+                      type: integer
+                    qty_damaged:
+                      type: integer
+                    qty_available:
+                      type: integer
+                    reorder_point:
+                      type: integer
+                    below_rop:
+                      type: boolean
+                    overstock:
+                      type: boolean
+                      description: qty_available di atas reorder_point x 2 (saran transfer)
+                  required:
+                  - warehouse_code
+                  - item_sku
+                  - qty_physical
+                  - qty_reserved
+                  - qty_damaged
+                  - qty_available
+                  - reorder_point
+                  - below_rop
+              example:
+              - warehouse_code: WH-BKS
+                item_sku: ONT-01
+                name: Perangkat ONT Dual-Band GPON
+                unit: UNIT
+                qty_physical: 40
+                qty_reserved: 0
+                qty_damaged: 1
+                qty_available: 39
+                reorder_point: 10
+                below_rop: false
+                overstock: true
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/items:
+    get:
+      operationId: listItems
+      summary: Daftar barang
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      description: Jumlah baris di header X-Total-Count.
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+        example: ONT
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sku:
+                      type: string
+                    name:
+                      type: string
+                    unit:
+                      type: string
+                    unit_cost:
+                      type: integer
+                    reorder_point:
+                      type: integer
+                    safety_stock:
+                      type: integer
+                    is_serialized:
+                      type: boolean
+                    specification:
+                      type: string
+                      nullable: true
+                  required:
+                  - sku
+                  - name
+                  - unit
+                  - unit_cost
+                  - reorder_point
+                  - safety_stock
+                  - is_serialized
+              example:
+              - sku: CBL-FO
+                name: Kabel Fiber Optik Dropcore 1C
+                unit: METER
+                unit_cost: 4000
+                reorder_point: 2000
+                safety_stock: 500
+                is_serialized: false
+                specification: Single-mode G.657A1 outdoor drop cable
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+    post:
+      operationId: createItem
+      summary: Tambah barang
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      x-consumers: []
+      description: Menerima Idempotency-Key. 409 DUPLICATE_SKU bila SKU sudah ada.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sku:
+                  type: string
+                name:
+                  type: string
+                unit:
+                  type: string
+                unit_cost:
+                  type: integer
+                reorder_point:
+                  type: integer
+                safety_stock:
+                  type: integer
+                is_serialized:
+                  type: boolean
+                specification:
+                  type: string
+                  nullable: true
+              required:
+              - sku
+              - name
+              - unit
+              - unit_cost
+            example:
+              sku: SPL-14
+              name: Splitter 1:4
+              unit: PCS
+              unit_cost: 25000
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sku:
+                    type: string
+                  name:
+                    type: string
+                  unit:
+                    type: string
+                  unit_cost:
+                    type: integer
+                  reorder_point:
+                    type: integer
+                  safety_stock:
+                    type: integer
+                  is_serialized:
+                    type: boolean
+                  specification:
+                    type: string
+                    nullable: true
+                required:
+                - sku
+                - name
+                - unit
+                - unit_cost
+                - reorder_point
+                - safety_stock
+                - is_serialized
+              example:
+                sku: SPL-14
+                name: Splitter 1:4
+                unit: PCS
+                unit_cost: 25000
+                reorder_point: 2000
+                safety_stock: 500
+                is_serialized: false
+                specification: Single-mode G.657A1 outdoor drop cable
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+  /api/v1/items/{sku}:
+    patch:
+      operationId: updateItem
+      summary: Ubah barang
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      x-consumers: []
+      description: 409 SERIALIZATION_LOCKED bila is_serialized diubah padahal barang sudah punya saldo atau unit.
+      parameters:
+      - name: sku
+        in: path
+        required: true
+        schema:
+          type: string
+        example: CBL-FO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                unit:
+                  type: string
+                unit_cost:
+                  type: integer
+                reorder_point:
+                  type: integer
+                safety_stock:
+                  type: integer
+                is_serialized:
+                  type: boolean
+                specification:
+                  type: string
+                  nullable: true
+            example:
+              unit_cost: 4500
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sku:
+                    type: string
+                  name:
+                    type: string
+                  unit:
+                    type: string
+                  unit_cost:
+                    type: integer
+                  reorder_point:
+                    type: integer
+                  safety_stock:
+                    type: integer
+                  is_serialized:
+                    type: boolean
+                  specification:
+                    type: string
+                    nullable: true
+                required:
+                - sku
+                - name
+                - unit
+                - unit_cost
+                - reorder_point
+                - safety_stock
+                - is_serialized
+              example:
+                sku: CBL-FO
+                name: Kabel Fiber Optik Dropcore 1C
+                unit: METER
+                unit_cost: 4000
+                reorder_point: 2000
+                safety_stock: 500
+                is_serialized: false
+                specification: Single-mode G.657A1 outdoor drop cable
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+  /api/v1/warehouses:
+    get:
+      operationId: listWarehouses
+      summary: Daftar gudang
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      description: Jumlah baris di header X-Total-Count.
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    name:
+                      type: string
+                    city_code:
+                      type: string
+                  required:
+                  - code
+                  - name
+                  - city_code
+              example:
+              - code: WH-BDG
+                name: Gudang Cabang Bandung
+                city_code: BDG
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/vendors:
+    get:
+      operationId: listVendors
+      summary: Daftar vendor
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      description: Jumlah baris di header X-Total-Count.
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          type: string
+        example: PERANGKAT_ONT
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    name:
+                      type: string
+                    category:
+                      type: string
+                    rating_score:
+                      type: number
+                  required:
+                  - code
+                  - name
+                  - category
+                  - rating_score
+              example:
+              - code: VEN-0001
+                name: PT FiberTech Nusantara
+                category: PERANGKAT_ONT
+                rating_score: 4.85
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+    post:
+      operationId: createVendor
+      summary: Tambah vendor (kode VEN- dari sequence)
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      x-consumers: []
+      description: Menerima Idempotency-Key.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                category:
+                  type: string
+                rating_score:
+                  type: number
+              required:
+              - name
+              - category
+            example:
+              name: PT Splitter Jaya
+              category: PASIF
+              rating_score: 4.25
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  name:
+                    type: string
+                  category:
+                    type: string
+                  rating_score:
+                    type: number
+                required:
+                - code
+                - name
+                - category
+                - rating_score
+              example:
+                code: VEN-0005
+                name: PT Splitter Jaya
+                category: PASIF
+                rating_score: 4.25
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+  /api/v1/vendors/{code}:
+    patch:
+      operationId: updateVendor
+      summary: Ubah vendor
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      x-consumers: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+        example: VEN-0001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                category:
+                  type: string
+                rating_score:
+                  type: number
+            example:
+              rating_score: 4.9
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  name:
+                    type: string
+                  category:
+                    type: string
+                  rating_score:
+                    type: number
+                required:
+                - code
+                - name
+                - category
+                - rating_score
+              example:
+                code: VEN-0001
+                name: PT FiberTech Nusantara
+                category: PERANGKAT_ONT
+                rating_score: 4.85
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+  /api/v1/package-kits:
+    get:
+      operationId: listPackageKits
+      summary: Daftar barang semua paket layanan
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      description: Jumlah baris di header X-Total-Count.
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    service_sku:
+                      type: string
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          item_sku:
+                            type: string
+                          name:
+                            type: string
+                          qty:
+                            type: integer
+                          unit:
+                            type: string
+                        required:
+                        - item_sku
+                        - name
+                        - qty
+                        - unit
+                  required:
+                  - service_sku
+                  - items
+              example:
+              - service_sku: HOME-50
+                items:
+                - item_sku: CBL-FO
+                  name: Kabel Fiber Optik Dropcore 1C
+                  qty: 50
+                  unit: METER
+                - item_sku: ONT-01
+                  name: Perangkat ONT Dual-Band GPON
+                  qty: 1
+                  unit: UNIT
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/audit-logs:
+    get:
+      operationId: listAuditLogs
+      summary: Audit log operasi tulis SCM
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - DIRECTOR
+      x-consumers: []
+      description: Jumlah baris di header X-Total-Count.
+      parameters:
+      - name: entity
+        in: query
+        required: false
+        schema:
+          type: string
+        example: StockRequest
+      - name: entity_id
+        in: query
+        required: false
+        schema:
+          type: string
+        example: SR-2026-000001
+      - name: actor
+        in: query
+        required: false
+        schema:
+          type: string
+        example: EMP-0077
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    at:
+                      type: string
+                    actor:
+                      type: string
+                    role:
+                      type: string
+                      nullable: true
+                    action:
+                      type: string
+                    entity:
+                      type: string
+                    entity_id:
+                      type: string
+                    detail:
+                      type: object
+                      nullable: true
+                    correlation_id:
+                      type: string
+                      nullable: true
+                  required:
+                  - id
+                  - at
+                  - actor
+                  - action
+                  - entity
+                  - entity_id
+              example:
+              - id: 5d1f1c2e-3c6a-4c2b-9d63-6a1f0c7f2a11
+                at: '2026-11-27T10:15:00+07:00'
+                actor: EMP-0077
+                role: WAREHOUSE_STAFF
+                action: stock_request.cancel
+                entity: StockRequest
+                entity_id: SR-2026-000001
+                detail:
+                  reason: Pelanggan batal
+                correlation_id: TKT-000001
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/transfers:
+    post:
+      operationId: createTransfer
+      summary: Buat transfer antar-gudang
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      description: Menerima Idempotency-Key. 422 SAME_WAREHOUSE, ITEM_NOT_FOUND, WAREHOUSE_NOT_FOUND, SERIAL_TRANSFER_NOT_SUPPORTED.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                from_warehouse_code:
+                  type: string
+                to_warehouse_code:
+                  type: string
+                lines:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      item_sku:
+                        type: string
+                      qty:
+                        type: integer
+                    required:
+                    - item_sku
+                    - qty
+                notes:
+                  type: string
+              required:
+              - from_warehouse_code
+              - to_warehouse_code
+              - lines
+            example:
+              from_warehouse_code: WH-BKS
+              to_warehouse_code: WH-SBY
+              lines:
+              - item_sku: CBL-FO
+                qty: 1000
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transfer_no:
+                    type: string
+                  from_warehouse_code:
+                    type: string
+                  to_warehouse_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - REQUESTED
+                    - IN_TRANSIT
+                    - RECEIVED
+                  notes:
+                    type: string
+                    nullable: true
+                  created_by:
+                    type: string
+                    nullable: true
+                  dispatched_by:
+                    type: string
+                    nullable: true
+                  dispatched_at:
+                    type: string
+                    nullable: true
+                  received_by:
+                    type: string
+                    nullable: true
+                  received_at:
+                    type: string
+                    nullable: true
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                      required:
+                      - item_sku
+                      - qty
+                required:
+                - transfer_no
+                - from_warehouse_code
+                - to_warehouse_code
+                - status
+                - lines
+              example:
+                transfer_no: TRF-2026-0001
+                from_warehouse_code: WH-BKS
+                to_warehouse_code: WH-SBY
+                status: REQUESTED
+                notes: null
+                created_by: EMP-0005
+                dispatched_by: null
+                dispatched_at: null
+                received_by: null
+                received_at: null
+                lines:
+                - item_sku: CBL-FO
+                  qty: 1000
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+  /api/v1/transfers/{transfer_no}/dispatch:
+    post:
+      operationId: dispatchTransfer
+      summary: Kirim barang dari gudang asal (saldo asal turun)
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      description: Menerima Idempotency-Key. 409 INSUFFICIENT_STOCK atau INVALID_TRANSITION.
+      parameters:
+      - name: transfer_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TRF-2026-0001
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transfer_no:
+                    type: string
+                  from_warehouse_code:
+                    type: string
+                  to_warehouse_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - REQUESTED
+                    - IN_TRANSIT
+                    - RECEIVED
+                  notes:
+                    type: string
+                    nullable: true
+                  created_by:
+                    type: string
+                    nullable: true
+                  dispatched_by:
+                    type: string
+                    nullable: true
+                  dispatched_at:
+                    type: string
+                    nullable: true
+                  received_by:
+                    type: string
+                    nullable: true
+                  received_at:
+                    type: string
+                    nullable: true
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                      required:
+                      - item_sku
+                      - qty
+                required:
+                - transfer_no
+                - from_warehouse_code
+                - to_warehouse_code
+                - status
+                - lines
+              example:
+                transfer_no: TRF-2026-0001
+                from_warehouse_code: WH-BKS
+                to_warehouse_code: WH-SBY
+                status: IN_TRANSIT
+                notes: null
+                created_by: EMP-0005
+                dispatched_by: EMP-0077
+                dispatched_at: '2026-11-27T09:00:00+07:00'
+                received_by: null
+                received_at: null
+                lines:
+                - item_sku: CBL-FO
+                  qty: 1000
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/transfers/{transfer_no}/receive:
+    post:
+      operationId: receiveTransfer
+      summary: Konfirmasi terima di gudang tujuan (saldo tujuan naik)
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      description: Menerima Idempotency-Key.
+      parameters:
+      - name: transfer_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: TRF-2026-0001
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transfer_no:
+                    type: string
+                  from_warehouse_code:
+                    type: string
+                  to_warehouse_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - REQUESTED
+                    - IN_TRANSIT
+                    - RECEIVED
+                  notes:
+                    type: string
+                    nullable: true
+                  created_by:
+                    type: string
+                    nullable: true
+                  dispatched_by:
+                    type: string
+                    nullable: true
+                  dispatched_at:
+                    type: string
+                    nullable: true
+                  received_by:
+                    type: string
+                    nullable: true
+                  received_at:
+                    type: string
+                    nullable: true
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                      required:
+                      - item_sku
+                      - qty
+                required:
+                - transfer_no
+                - from_warehouse_code
+                - to_warehouse_code
+                - status
+                - lines
+              example:
+                transfer_no: TRF-2026-0001
+                from_warehouse_code: WH-BKS
+                to_warehouse_code: WH-SBY
+                status: RECEIVED
+                notes: null
+                created_by: EMP-0005
+                dispatched_by: EMP-0077
+                dispatched_at: '2026-11-27T09:00:00+07:00'
+                received_by: EMP-0081
+                received_at: '2026-11-28T14:00:00+07:00'
+                lines:
+                - item_sku: CBL-FO
+                  qty: 1000
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/assets/units:
+    get:
+      operationId: listAssetUnits
+      summary: Daftar unit ONT bernomor seri
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+        example: WITH_TECHNICIAN
+      - name: warehouse_code
+        in: query
+        required: false
+        schema:
+          type: string
+        example: WH-BDG
+      - name: technician_employee_id
+        in: query
+        required: false
+        schema:
+          type: string
+        example: EMP-0042
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    serial_number:
+                      type: string
+                    item_sku:
+                      type: string
+                    warehouse_code:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                      - IN_STOCK
+                      - RESERVED
+                      - WITH_TECHNICIAN
+                      - INSTALLED
+                      - RETURNED
+                      - FAULTY
+                      - LOST
+                      - WRITTEN_OFF
+                    stock_request_no:
+                      type: string
+                      nullable: true
+                    technician_employee_id:
+                      type: string
+                      nullable: true
+                    installed_ticket_code:
+                      type: string
+                      nullable: true
+                    received_gr_no:
+                      type: string
+                      nullable: true
+                  required:
+                  - serial_number
+                  - item_sku
+                  - warehouse_code
+                  - status
+              example:
+              - serial_number: SN-ONT-2026-000010
+                item_sku: ONT-01
+                warehouse_code: WH-BDG
+                status: WITH_TECHNICIAN
+                stock_request_no: SR-2026-000001
+                technician_employee_id: EMP-0042
+                installed_ticket_code: null
+                received_gr_no: GR-2026-0001
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/assets/units/{serial_number}:
+    get:
+      operationId: getAssetUnit
+      summary: Detail unit beserta riwayat status
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      parameters:
+      - name: serial_number
+        in: path
+        required: true
+        schema:
+          type: string
+        example: SN-ONT-2026-000010
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serial_number:
+                    type: string
+                  item_sku:
+                    type: string
+                  warehouse_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - IN_STOCK
+                    - RESERVED
+                    - WITH_TECHNICIAN
+                    - INSTALLED
+                    - RETURNED
+                    - FAULTY
+                    - LOST
+                    - WRITTEN_OFF
+                  stock_request_no:
+                    type: string
+                    nullable: true
+                  technician_employee_id:
+                    type: string
+                    nullable: true
+                  installed_ticket_code:
+                    type: string
+                    nullable: true
+                  received_gr_no:
+                    type: string
+                    nullable: true
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        from_status:
+                          type: string
+                          nullable: true
+                        to_status:
+                          type: string
+                        ref:
+                          type: string
+                          nullable: true
+                        by:
+                          type: string
+                          nullable: true
+                        at:
+                          type: string
+                      required:
+                      - to_status
+                      - at
+                required:
+                - serial_number
+                - item_sku
+                - warehouse_code
+                - status
+                - history
+              example:
+                serial_number: SN-ONT-2026-000010
+                item_sku: ONT-01
+                warehouse_code: WH-BDG
+                status: WITH_TECHNICIAN
+                stock_request_no: SR-2026-000001
+                technician_employee_id: EMP-0042
+                installed_ticket_code: null
+                received_gr_no: GR-2026-0001
+                history:
+                - from_status: null
+                  to_status: IN_STOCK
+                  ref: GR-2026-0001
+                  by: EMP-0077
+                  at: '2026-11-20T09:00:00+07:00'
+                - from_status: IN_STOCK
+                  to_status: RESERVED
+                  ref: SR-2026-000001
+                  by: system
+                  at: '2026-11-25T10:00:00+07:00'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+  /api/v1/assets/units/{serial_number}/inspect:
+    post:
+      operationId: inspectAssetUnit
+      summary: Periksa unit retur
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      parameters:
+      - name: serial_number
+        in: path
+        required: true
+        schema:
+          type: string
+        example: SN-ONT-2026-000010
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                result:
+                  type: string
+                  enum:
+                  - GOOD
+                  - FAULTY
+                notes:
+                  type: string
+              required:
+              - result
+            example:
+              result: GOOD
+              notes: Lolos uji koneksi
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serial_number:
+                    type: string
+                  item_sku:
+                    type: string
+                  warehouse_code:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - IN_STOCK
+                    - RESERVED
+                    - WITH_TECHNICIAN
+                    - INSTALLED
+                    - RETURNED
+                    - FAULTY
+                    - LOST
+                    - WRITTEN_OFF
+                  stock_request_no:
+                    type: string
+                    nullable: true
+                  technician_employee_id:
+                    type: string
+                    nullable: true
+                  installed_ticket_code:
+                    type: string
+                    nullable: true
+                  received_gr_no:
+                    type: string
+                    nullable: true
+                required:
+                - serial_number
+                - item_sku
+                - warehouse_code
+                - status
+              example:
+                serial_number: SN-ONT-2026-000010
+                item_sku: ONT-01
+                warehouse_code: WH-BDG
+                status: IN_STOCK
+                stock_request_no: null
+                technician_employee_id: null
+                installed_ticket_code: null
+                received_gr_no: GR-2026-0001
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/purchase-requests:
+    get:
+      operationId: listPurchaseRequests
+      summary: Daftar permintaan pembelian (PR)
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+        example: BUDGET_OK
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 20
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    purchase_request_no:
+                      type: string
+                    source:
+                      type: string
+                      enum:
+                      - STOCK_REQUEST
+                      - LOW_STOCK
+                      - MANUAL
+                    stock_request_no:
+                      type: string
+                      nullable: true
+                    warehouse_code:
+                      type: string
+                    estimated_total:
+                      type: integer
+                    status:
+                      type: string
+                      enum:
+                      - PENDING_BUDGET
+                      - BUDGET_OK
+                      - BUDGET_REJECTED
+                      - PO_CREATED
+                      - CANCELLED
+                    budget_remaining:
+                      type: integer
+                      nullable: true
+                    lines:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          item_sku:
+                            type: string
+                          qty:
+                            type: integer
+                          estimated_unit_cost:
+                            type: integer
+                        required:
+                        - item_sku
+                        - qty
+                        - estimated_unit_cost
+                  required:
+                  - purchase_request_no
+                  - source
+                  - warehouse_code
+                  - estimated_total
+                  - status
+              example:
+              - purchase_request_no: PR-2026-0001
+                source: STOCK_REQUEST
+                stock_request_no: SR-2026-000003
+                warehouse_code: WH-BDG
+                estimated_total: 3500000
+                status: BUDGET_OK
+                budget_remaining: 215000000
+                lines:
+                - item_sku: ONT-01
+                  qty: 10
+                  estimated_unit_cost: 350000
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+  /api/v1/purchase-requests/{purchase_request_no}:
+    get:
+      operationId: getPurchaseRequest
+      summary: Detail PR
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      parameters:
+      - name: purchase_request_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: PR-2026-0001
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchase_request_no:
+                    type: string
+                  source:
+                    type: string
+                    enum:
+                    - STOCK_REQUEST
+                    - LOW_STOCK
+                    - MANUAL
+                  stock_request_no:
+                    type: string
+                    nullable: true
+                  warehouse_code:
+                    type: string
+                  estimated_total:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - PENDING_BUDGET
+                    - BUDGET_OK
+                    - BUDGET_REJECTED
+                    - PO_CREATED
+                    - CANCELLED
+                  budget_remaining:
+                    type: integer
+                    nullable: true
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                        estimated_unit_cost:
+                          type: integer
+                      required:
+                      - item_sku
+                      - qty
+                      - estimated_unit_cost
+                required:
+                - purchase_request_no
+                - source
+                - warehouse_code
+                - estimated_total
+                - status
+              example:
+                purchase_request_no: PR-2026-0001
+                source: STOCK_REQUEST
+                stock_request_no: SR-2026-000003
+                warehouse_code: WH-BDG
+                estimated_total: 3500000
+                status: BUDGET_OK
+                budget_remaining: 215000000
+                lines:
+                - item_sku: ONT-01
+                  qty: 10
+                  estimated_unit_cost: 350000
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+  /api/v1/purchase-requests/{purchase_request_no}/create-po:
+    post:
+      operationId: createPoFromPurchaseRequest
+      summary: Buat PO dari PR yang lolos cek anggaran
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - PROCUREMENT_STAFF
+      x-consumers: []
+      parameters:
+      - name: purchase_request_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: PR-2026-0001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vendor_code:
+                  type: string
+                unit_prices:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      item_sku:
+                        type: string
+                      unit_price:
+                        type: integer
+                    required:
+                    - item_sku
+                    - unit_price
+              required:
+              - vendor_code
+              - unit_prices
+            example:
+              vendor_code: VEN-0001
+              unit_prices:
+              - item_sku: ONT-01
+                unit_price: 350000
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  po_no:
+                    type: string
+                  purchase_request_no:
+                    type: string
+                    nullable: true
+                  vendor_code:
+                    type: string
+                  total_amount:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - DRAFT
+                    - PENDING_APPROVAL
+                    - APPROVED
+                    - PARTIALLY_RECEIVED
+                    - RECEIVED
+                    - CLOSED
+                    - REJECTED
+                    - CANCELLED
+                  required_roles:
+                    type: array
+                    items:
+                      type: string
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                        unit_price:
+                          type: integer
+                        qty_received:
+                          type: integer
+                      required:
+                      - item_sku
+                      - qty
+                      - unit_price
+                      - qty_received
+                  approvals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role:
+                          type: string
+                        approver_id:
+                          type: string
+                        decision:
+                          type: string
+                          enum:
+                          - APPROVED
+                          - REJECTED
+                        comment:
+                          type: string
+                          nullable: true
+                        at:
+                          type: string
+                      required:
+                      - role
+                      - approver_id
+                      - decision
+                      - at
+                  receipts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        gr_no:
+                          type: string
+                        warehouse_code:
+                          type: string
+                        received_at:
+                          type: string
+                      required:
+                      - gr_no
+                      - warehouse_code
+                      - received_at
+                required:
+                - po_no
+                - vendor_code
+                - total_amount
+                - status
+                - required_roles
+                - lines
+                - approvals
+                - receipts
+              example:
+                po_no: PO-2026-0001
+                purchase_request_no: PR-2026-0001
+                vendor_code: VEN-0001
+                total_amount: 3500000
+                status: PENDING_APPROVAL
+                required_roles:
+                - SCM_MANAGER
+                lines:
+                - item_sku: ONT-01
+                  qty: 10
+                  unit_price: 350000
+                  qty_received: 0
+                approvals: []
+                receipts: []
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '422':
+          $ref: '#/components/responses/Error'
+  /api/v1/purchase-orders/{po_no}:
+    get:
+      operationId: getPurchaseOrder
+      summary: Detail PO dengan baris, persetujuan, dan penerimaan
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - DIRECTOR
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      - PROCUREMENT_STAFF
+      - FINANCE_MANAGER
+      x-consumers: []
+      parameters:
+      - name: po_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: PO-2026-0001
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  po_no:
+                    type: string
+                  purchase_request_no:
+                    type: string
+                    nullable: true
+                  vendor_code:
+                    type: string
+                  total_amount:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - DRAFT
+                    - PENDING_APPROVAL
+                    - APPROVED
+                    - PARTIALLY_RECEIVED
+                    - RECEIVED
+                    - CLOSED
+                    - REJECTED
+                    - CANCELLED
+                  required_roles:
+                    type: array
+                    items:
+                      type: string
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                        unit_price:
+                          type: integer
+                        qty_received:
+                          type: integer
+                      required:
+                      - item_sku
+                      - qty
+                      - unit_price
+                      - qty_received
+                  approvals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role:
+                          type: string
+                        approver_id:
+                          type: string
+                        decision:
+                          type: string
+                          enum:
+                          - APPROVED
+                          - REJECTED
+                        comment:
+                          type: string
+                          nullable: true
+                        at:
+                          type: string
+                      required:
+                      - role
+                      - approver_id
+                      - decision
+                      - at
+                  receipts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        gr_no:
+                          type: string
+                        warehouse_code:
+                          type: string
+                        received_at:
+                          type: string
+                      required:
+                      - gr_no
+                      - warehouse_code
+                      - received_at
+                required:
+                - po_no
+                - vendor_code
+                - total_amount
+                - status
+                - required_roles
+                - lines
+                - approvals
+                - receipts
+              example:
+                po_no: PO-2026-0001
+                purchase_request_no: PR-2026-0001
+                vendor_code: VEN-0001
+                total_amount: 3500000
+                status: PENDING_APPROVAL
+                required_roles:
+                - SCM_MANAGER
+                lines:
+                - item_sku: ONT-01
+                  qty: 10
+                  unit_price: 350000
+                  qty_received: 0
+                approvals: []
+                receipts: []
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+  /api/v1/purchase-orders/{po_no}/approve:
+    post:
+      operationId: approvePurchaseOrder
+      summary: Setujui PO pada jenjang role penyetuju
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - FINANCE_MANAGER
+      - DIRECTOR
+      x-consumers: []
+      description: Penyetuju diambil dari JWT.
+      parameters:
+      - name: po_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: PO-2026-0001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+              required: []
+            example:
+              comment: Sesuai kebutuhan
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  po_no:
+                    type: string
+                  purchase_request_no:
+                    type: string
+                    nullable: true
+                  vendor_code:
+                    type: string
+                  total_amount:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - DRAFT
+                    - PENDING_APPROVAL
+                    - APPROVED
+                    - PARTIALLY_RECEIVED
+                    - RECEIVED
+                    - CLOSED
+                    - REJECTED
+                    - CANCELLED
+                  required_roles:
+                    type: array
+                    items:
+                      type: string
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                        unit_price:
+                          type: integer
+                        qty_received:
+                          type: integer
+                      required:
+                      - item_sku
+                      - qty
+                      - unit_price
+                      - qty_received
+                  approvals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role:
+                          type: string
+                        approver_id:
+                          type: string
+                        decision:
+                          type: string
+                          enum:
+                          - APPROVED
+                          - REJECTED
+                        comment:
+                          type: string
+                          nullable: true
+                        at:
+                          type: string
+                      required:
+                      - role
+                      - approver_id
+                      - decision
+                      - at
+                  receipts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        gr_no:
+                          type: string
+                        warehouse_code:
+                          type: string
+                        received_at:
+                          type: string
+                      required:
+                      - gr_no
+                      - warehouse_code
+                      - received_at
+                required:
+                - po_no
+                - vendor_code
+                - total_amount
+                - status
+                - required_roles
+                - lines
+                - approvals
+                - receipts
+              example:
+                po_no: PO-2026-0001
+                purchase_request_no: PR-2026-0001
+                vendor_code: VEN-0001
+                total_amount: 3500000
+                status: APPROVED
+                required_roles:
+                - SCM_MANAGER
+                lines:
+                - item_sku: ONT-01
+                  qty: 10
+                  unit_price: 350000
+                  qty_received: 0
+                approvals:
+                - role: SCM_MANAGER
+                  approver_id: EMP-0005
+                  decision: APPROVED
+                  comment: Sesuai kebutuhan
+                  at: '2026-11-27T10:00:00+07:00'
+                receipts: []
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/purchase-orders/{po_no}/reject:
+    post:
+      operationId: rejectPurchaseOrder
+      summary: Tolak PO
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - FINANCE_MANAGER
+      - DIRECTOR
+      x-consumers: []
+      description: Penyetuju diambil dari JWT.
+      parameters:
+      - name: po_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: PO-2026-0001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+              required: []
+            example:
+              comment: Sesuai kebutuhan
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  po_no:
+                    type: string
+                  purchase_request_no:
+                    type: string
+                    nullable: true
+                  vendor_code:
+                    type: string
+                  total_amount:
+                    type: integer
+                  status:
+                    type: string
+                    enum:
+                    - DRAFT
+                    - PENDING_APPROVAL
+                    - APPROVED
+                    - PARTIALLY_RECEIVED
+                    - RECEIVED
+                    - CLOSED
+                    - REJECTED
+                    - CANCELLED
+                  required_roles:
+                    type: array
+                    items:
+                      type: string
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        item_sku:
+                          type: string
+                        qty:
+                          type: integer
+                        unit_price:
+                          type: integer
+                        qty_received:
+                          type: integer
+                      required:
+                      - item_sku
+                      - qty
+                      - unit_price
+                      - qty_received
+                  approvals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role:
+                          type: string
+                        approver_id:
+                          type: string
+                        decision:
+                          type: string
+                          enum:
+                          - APPROVED
+                          - REJECTED
+                        comment:
+                          type: string
+                          nullable: true
+                        at:
+                          type: string
+                      required:
+                      - role
+                      - approver_id
+                      - decision
+                      - at
+                  receipts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        gr_no:
+                          type: string
+                        warehouse_code:
+                          type: string
+                        received_at:
+                          type: string
+                      required:
+                      - gr_no
+                      - warehouse_code
+                      - received_at
+                required:
+                - po_no
+                - vendor_code
+                - total_amount
+                - status
+                - required_roles
+                - lines
+                - approvals
+                - receipts
+              example:
+                po_no: PO-2026-0001
+                purchase_request_no: PR-2026-0001
+                vendor_code: VEN-0001
+                total_amount: 3500000
+                status: REJECTED
+                required_roles:
+                - SCM_MANAGER
+                lines:
+                - item_sku: ONT-01
+                  qty: 10
+                  unit_price: 350000
+                  qty_received: 0
+                approvals:
+                - role: SCM_MANAGER
+                  approver_id: EMP-0005
+                  decision: REJECTED
+                  comment: Sesuai kebutuhan
+                  at: '2026-11-27T10:00:00+07:00'
+                receipts: []
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+  /api/v1/purchase-orders/{po_no}/receipts:
+    post:
+      operationId: receivePurchaseOrder
+      summary: Catat penerimaan barang (GR)
+      tags:
+      - scm
+      x-auth: user
+      x-roles:
+      - SCM_MANAGER
+      - WAREHOUSE_STAFF
+      x-consumers: []
+      parameters:
+      - name: po_no
+        in: path
+        required: true
+        schema:
+          type: string
+        example: PO-2026-0001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                warehouse_code:
+                  type: string
+                lines:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      item_sku:
+                        type: string
+                      qty:
+                        type: integer
+                    required:
+                    - item_sku
+                    - qty
+              required:
+              - warehouse_code
+              - lines
+            example:
+              warehouse_code: WH-BDG
+              lines:
+              - item_sku: ONT-01
+                qty: 2
+      security:
+      - bearerAuth: []
+      responses:
+        '201':
+          description: Berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gr_no:
+                    type: string
+                  po_status:
+                    type: string
+                    enum:
+                    - PARTIALLY_RECEIVED
+                    - RECEIVED
+                  serial_numbers:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - gr_no
+                - po_status
+                - serial_numbers
+              example:
+                gr_no: GR-2026-0001
+                po_status: RECEIVED
+                serial_numbers:
+                - SN-ONT-2026-000101
+                - SN-ONT-2026-000102
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
           $ref: '#/components/responses/Error'
 components:
   securitySchemes:

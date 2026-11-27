@@ -5,7 +5,7 @@ slice: D
 tier: 2
 priority: P2
 owner: mike
-status: TODO
+status: IN_PROGRESS
 contract: "DRAFT (`/transfers`, event `shipment.delivered` belum diterbitkan)"
 depends_on: [SCM-0]
 touches:
@@ -28,8 +28,8 @@ Stok di cabang bertambah setelah penerimaan dikonfirmasi, bukan saat barang meni
 
 ## Kriteria penerimaan
 
-- [ ] Setelah dispatch, saldo asal turun dan saldo tujuan belum berubah; setelah receive, saldo tujuan naik.
-- [ ] Transfer ke gudang yang sama ditolak `422`.
+- [x] Setelah dispatch, saldo asal turun dan saldo tujuan belum berubah; setelah receive, saldo tujuan naik.
+- [x] Transfer ke gudang yang sama ditolak `422`.
 - [ ] Unit serial tetap utuh dan tercatat di riwayat selama perpindahan.
 
 ## Tes

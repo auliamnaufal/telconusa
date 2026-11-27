@@ -35,3 +35,13 @@ PURCHASE_ORDER = StateMachine(
 )
 
 GOODS_RECEIPT = StateMachine("GOODS_RECEIPT", {"POSTED": set()})
+
+# Transfer antar-gudang (SCM-D-10). Saldo asal turun saat dikirim, saldo tujuan naik saat diterima.
+TRANSFER = StateMachine(
+    "TRANSFER",
+    {
+        "REQUESTED": {"IN_TRANSIT"},
+        "IN_TRANSIT": {"RECEIVED"},
+        "RECEIVED": set(),
+    },
+)

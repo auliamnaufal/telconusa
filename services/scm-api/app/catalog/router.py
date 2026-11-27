@@ -1,7 +1,7 @@
 """Endpoint HTTP Slice D.
 
 Data master (SCM-D-01), pengelolaan paket (SCM-D-02), `city_code` dan `/stock/balances` (SCM-D-03),
-`/audit-logs` (SCM-D-06) berstatus DRAFT di `tracks/scm/contract-extension.md`;
+`/audit-logs` (SCM-D-06), `/transfers` (SCM-D-10) berstatus DRAFT di `tracks/scm/contract-extension.md`;
 `GET /package-kits/{sku}`, `GET /stock/{sku}`, dan `GET /dashboard/summary` (SCM-D-04; kolom KPI tambahan masih DRAFT) ada di
 `contracts/openapi/scm.yaml`.
 """
@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.catalog import service
-from app.core.auth import ROLES_MANAGER, Actor, require_scm_roles, require_scope
+from app.core.auth import ROLES_MANAGER, ROLES_WAREHOUSE, Actor, require_scm_roles, require_scope
 
 ROLES_AUDIT = ("SCM_MANAGER", "DIRECTOR")
 from app.core.idempotency import idempotency_key, run_idempotent
@@ -54,6 +54,18 @@ class VendorUpdateBody(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=120)
     category: str | None = Field(None, min_length=1, max_length=40)
     rating_score: Decimal | None = Field(None, ge=0, le=5, decimal_places=2)
+
+
+class TransferLineBody(BaseModel):
+    item_sku: str = Field(min_length=1)
+    qty: int = Field(gt=0)
+
+
+class TransferCreateBody(BaseModel):
+    from_warehouse_code: str = Field(min_length=1)
+    to_warehouse_code: str = Field(min_length=1)
+    lines: list[TransferLineBody] = Field(min_length=1)
+    notes: str | None = None
 
 
 class KitLineBody(BaseModel):
@@ -275,3 +287,55 @@ def list_audit_logs(
     rows, total = service.list_audit_logs(db, entity, entity_id, actor, page, limit)
     response.headers["X-Total-Count"] = str(total)
     return [service.audit_to_dict(row) for row in rows]
+
+
+# ---------------------------------------------------------------------------- transfer
+
+
+@router.post("/transfers")
+def create_transfer(
+    body: TransferCreateBody,
+    key: str | None = Depends(idempotency_key),
+    actor: Actor = Depends(require_scm_roles(*ROLES_WAREHOUSE)),
+    cid: str | None = Depends(correlation_id),
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    lines = [(line.item_sku, line.qty) for line in body.lines]
+    status, payload = run_idempotent(
+        db, key, "POST /api/v1/transfers",
+        lambda: (
+            201,
+            service.create_transfer(db, body.from_warehouse_code, body.to_warehouse_code, lines, body.notes, actor, cid),
+        ),
+    )
+    return JSONResponse(content=payload, status_code=status)
+
+
+@router.post("/transfers/{transfer_no}/dispatch")
+def dispatch_transfer(
+    transfer_no: str,
+    key: str | None = Depends(idempotency_key),
+    actor: Actor = Depends(require_scm_roles(*ROLES_WAREHOUSE)),
+    cid: str | None = Depends(correlation_id),
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    status, payload = run_idempotent(
+        db, key, f"POST /api/v1/transfers/{transfer_no}/dispatch",
+        lambda: (200, service.dispatch_transfer(db, transfer_no, actor, cid)),
+    )
+    return JSONResponse(content=payload, status_code=status)
+
+
+@router.post("/transfers/{transfer_no}/receive")
+def receive_transfer(
+    transfer_no: str,
+    key: str | None = Depends(idempotency_key),
+    actor: Actor = Depends(require_scm_roles(*ROLES_WAREHOUSE)),
+    cid: str | None = Depends(correlation_id),
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    status, payload = run_idempotent(
+        db, key, f"POST /api/v1/transfers/{transfer_no}/receive",
+        lambda: (200, service.receive_transfer(db, transfer_no, actor, cid)),
+    )
+    return JSONResponse(content=payload, status_code=status)

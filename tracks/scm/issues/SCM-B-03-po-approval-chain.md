@@ -5,7 +5,7 @@ slice: B
 tier: 1
 priority: P0
 owner: Makro
-status: TODO
+status: REVIEW
 contract: "DRAFT (`approve`, `reject`)"
 depends_on: [SCM-0, SCM-B-02]
 touches:

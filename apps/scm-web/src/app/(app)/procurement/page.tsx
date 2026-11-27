@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import { ProcurementOverview } from "@/features/procurement/ProcurementOverview";
 
 export default function Page() {
-  return <PlaceholderPage title="Pengadaan" issue="SCM-B-05" />;
+  return <ProcurementOverview />;
 }

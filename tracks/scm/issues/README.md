@@ -45,12 +45,12 @@ Aturan `depends_on`: hanya Slice 0 atau issue sebelumnya di slice yang sama. Sat
 
 | Issue | Judul | Tier | Prioritas | Status | Owner |
 | :--- | :--- | :---: | :---: | :---: | :--- |
-| [SCM-B-01](SCM-B-01-purchase-request-and-budget-check.md) | PR, cek anggaran Finance, dan implementasi `ProcurementPort` | 1 | P0 | TODO | Makro |
-| [SCM-B-02](SCM-B-02-create-purchase-order.md) | Pembuatan PO dan daftar PO | 1 | P0 | TODO | Makro |
-| [SCM-B-03](SCM-B-03-po-approval-chain.md) | Persetujuan PO berjenjang | 1 | P0 | TODO | Makro |
-| [SCM-B-04](SCM-B-04-goods-receipt.md) | Penerimaan barang (GR) | 1 | P0 | TODO | Makro |
-| [SCM-B-05](SCM-B-05-web-procurement.md) | Layar pengadaan | 1 | P1 | TODO | Makro |
-| [SCM-B-06](SCM-B-06-po-quotes.md) | Tiga penawaran untuk PO di atas Rp50 juta | 2 | P2 | TODO | Makro |
+| [SCM-B-01](SCM-B-01-purchase-request-and-budget-check.md) | PR, cek anggaran Finance, dan implementasi `ProcurementPort` | 1 | P0 | REVIEW | Makro |
+| [SCM-B-02](SCM-B-02-create-purchase-order.md) | Pembuatan PO dan daftar PO | 1 | P0 | REVIEW | Makro |
+| [SCM-B-03](SCM-B-03-po-approval-chain.md) | Persetujuan PO berjenjang | 1 | P0 | REVIEW | Makro |
+| [SCM-B-04](SCM-B-04-goods-receipt.md) | Penerimaan barang (GR) | 1 | P0 | REVIEW | Makro |
+| [SCM-B-05](SCM-B-05-web-procurement.md) | Layar pengadaan | 1 | P1 | REVIEW | Makro |
+| [SCM-B-06](SCM-B-06-po-quotes.md) | Tiga penawaran untuk PO di atas Rp50 juta | 2 | P2 | REVIEW | Makro |
 
 ## Slice C: aset ONT dan retur
 

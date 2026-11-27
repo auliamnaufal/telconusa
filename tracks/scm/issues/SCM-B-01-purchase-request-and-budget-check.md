@@ -5,7 +5,7 @@ slice: B
 tier: 1
 priority: P0
 owner: Makro
-status: TODO
+status: REVIEW
 contract: "K (konsumsi `POST /budgets/check`)"
 depends_on: [SCM-0]
 touches:

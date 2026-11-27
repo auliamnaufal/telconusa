@@ -5,7 +5,7 @@ slice: B
 tier: 1
 priority: P0
 owner: Makro
-status: TODO
+status: REVIEW
 contract: "K (`POST /purchase-orders`) + DRAFT (lainnya)"
 depends_on: [SCM-0, SCM-B-01]
 touches:

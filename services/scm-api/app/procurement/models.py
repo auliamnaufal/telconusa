@@ -1,5 +1,5 @@
 """Tabel Slice B: PR, PO, persetujuan, penerimaan barang (SCM-0-05)."""
-from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import relationship
 
 from app.core.models import gen_uuid
@@ -105,3 +105,18 @@ class GoodsReceiptLine(Base):
     serial_numbers = Column(Text, nullable=True)  # JSON array
 
     goods_receipt = relationship("GoodsReceipt", back_populates="lines")
+
+
+class PoQuote(Base):
+    """Penawaran vendor untuk PO di atas Rp50 juta (SCM-B-06); satu per vendor per PO."""
+
+    __tablename__ = "po_quotes"
+    __table_args__ = (UniqueConstraint("po_no", "vendor_code", name="uq_po_quote_vendor"),)
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    po_no = Column(String(24), nullable=False, index=True)
+    vendor_code = Column(String(16), ForeignKey("vendors.code"), nullable=False)
+    unit_price = Column(BigInteger, nullable=False)
+    notes = Column(Text, nullable=True)
+    created_by = Column(String(40), nullable=False)
+    created_at = Column(DateTime, server_default=func.now())

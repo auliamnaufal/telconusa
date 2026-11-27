@@ -5,7 +5,7 @@ slice: B
 tier: 1
 priority: P1
 owner: Makro
-status: TODO
+status: REVIEW
 contract: "none"
 depends_on: [SCM-0, SCM-0-06, SCM-B-02]
 touches:

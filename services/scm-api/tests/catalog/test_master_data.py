@@ -61,7 +61,7 @@ def test_create_item_appears_in_list(client, auth, seeded):
     skus = [row["sku"] for row in client.get("/api/v1/items?limit=100", headers=auth("SCM_MANAGER")).json()]
     assert "SPL-14" in skus
     seeded.expire_all()
-    assert seeded.query(AuditLog).filter_by(action="item.created", entity_id="SPL-14").count() == 1
+    assert seeded.query(AuditLog).filter_by(action="item.create", entity_id="SPL-14").count() == 1
 
 
 def test_duplicate_sku_is_409(client, auth, seeded):

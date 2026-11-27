@@ -72,7 +72,7 @@ Aturan `depends_on`: hanya Slice 0 atau issue sebelumnya di slice yang sama. Sat
 | [SCM-D-03](SCM-D-03-stock-availability-api.md) | API stok indikatif untuk CRM dan saldo per gudang | 1 | P0 | DONE | mike |
 | [SCM-D-04](SCM-D-04-dashboard-summary-api.md) | API ringkasan dashboard | 1 | P1 | DONE | mike |
 | [SCM-D-05](SCM-D-05-web-dashboard-stock-catalog.md) | Layar dashboard, stok, dan katalog | 1 | P1 | TODO | mike |
-| [SCM-D-06](SCM-D-06-audit-log-page.md) | Halaman dan API audit log | 2 | P2 | TODO | mike |
+| [SCM-D-06](SCM-D-06-audit-log-page.md) | Halaman dan API audit log | 2 | P2 | IN_PROGRESS | mike |
 | [SCM-D-07](SCM-D-07-status-and-demo-guide.md) | Status LIVE di `tracks/scm.md` dan panduan demo lokal | 1 | P1 | TODO | mike |
 | [SCM-D-08](SCM-D-08-contract-extension-pr.md) | PR kontrak bersama dari `contract-extension.md` | 1 | P1 | TODO | mike |
 | [SCM-D-09](SCM-D-09-e2e-demo-scenario.md) | Tes skenario demo end-to-end dan skenario gagal | 1 | P0 | TODO | mike |

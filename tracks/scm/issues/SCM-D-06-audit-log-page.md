@@ -5,7 +5,7 @@ slice: D
 tier: 2
 priority: P2
 owner: mike
-status: TODO
+status: IN_PROGRESS
 contract: "DRAFT (`GET /audit-logs`)"
 depends_on: [SCM-0, SCM-0-06]
 touches:
@@ -31,7 +31,7 @@ Jejak audit pembatalan, persetujuan, pemeriksaan, hapus buku.
 ## Kriteria penerimaan
 
 - [ ] Setelah pembatalan permintaan, persetujuan PO, dan pemeriksaan unit, tiap aksi muncul di audit dengan pelaku dan `correlation_id`.
-- [ ] Role lain mendapat `403`.
+- [x] Role lain mendapat `403`.
 
 ## Tes
 

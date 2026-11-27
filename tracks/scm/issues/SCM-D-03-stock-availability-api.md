@@ -5,7 +5,7 @@ slice: D
 tier: 1
 priority: P0
 owner: mike
-status: TODO
+status: DONE
 contract: "K (`GET /stock/{sku}`) + DRAFT (`city_code`, `/stock/balances`)"
 depends_on: [SCM-0]
 touches:
@@ -27,10 +27,10 @@ Menutup temuan P1: `GET /stock/{sku}` tanpa autentikasi dan menjumlah semua guda
 
 ## Kriteria penerimaan
 
-- [ ] Tanpa token `401`, scope salah `403`; SKU tak dikenal `404`.
-- [ ] `city_code=BDG` hanya menghitung `WH-BDG`.
-- [ ] `below_rop` benar bila `qty_available` di bawah `reorder_point` untuk lingkup yang diminta.
-- [ ] Barang rusak tidak dihitung tersedia.
+- [x] Tanpa token `401`, scope salah `403`; SKU tak dikenal `404`.
+- [x] `city_code=BDG` hanya menghitung `WH-BDG`.
+- [x] `below_rop` benar bila `qty_available` di bawah `reorder_point` untuk lingkup yang diminta.
+- [x] Barang rusak tidak dihitung tersedia.
 
 ## Tes
 
@@ -38,6 +38,6 @@ Menutup temuan P1: `GET /stock/{sku}` tanpa autentikasi dan menjumlah semua guda
 
 ## Selesai bila
 
-- [ ] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
-- [ ] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
-- [ ] `status` issue ini diubah menjadi `DONE` di PR yang sama.
+- [x] Semua kriteria di atas terpenuhi dan tes issue ini lulus (`pytest -q services/scm-api/tests`).
+- [x] Hanya berkas di `touches` yang berubah, selain baris `status` issue ini dan baris kontrak terkait di `tracks/scm.md`.
+- [x] `status` issue ini diubah menjadi `DONE` di PR yang sama.

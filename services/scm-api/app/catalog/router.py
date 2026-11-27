@@ -1,7 +1,7 @@
 """Endpoint HTTP Slice D.
 
-Data master (SCM-D-01) dan pengelolaan paket (SCM-D-02) berstatus DRAFT di `tracks/scm/contract-extension.md`;
-`GET /package-kits/{sku}` ada di `contracts/openapi/scm.yaml`.
+Data master (SCM-D-01), pengelolaan paket (SCM-D-02), `city_code` dan `/stock/balances` (SCM-D-03) berstatus DRAFT di `tracks/scm/contract-extension.md`;
+`GET /package-kits/{sku}` dan `GET /stock/{sku}` ada di `contracts/openapi/scm.yaml`.
 """
 from decimal import Decimal
 from typing import Any
@@ -202,3 +202,33 @@ def replace_package_kit(
     result = service.replace_kit(db, sku, [(line.item_sku, line.qty) for line in body.lines], actor)
     db.commit()
     return result
+
+
+# ---------------------------------------------------------------------------- stok
+
+
+# Didaftarkan sebelum `/stock/{sku}` agar "balances" tidak dibaca sebagai SKU.
+@router.get("/stock/balances")
+def list_stock_balances(
+    response: Response,
+    warehouse_code: str | None = None,
+    item_sku: str | None = None,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    _: Actor = Depends(require_scm_roles()),
+    db: Session = Depends(get_db),
+) -> list[dict[str, Any]]:
+    rows, total = service.list_balances(db, warehouse_code, item_sku, page, limit)
+    response.headers["X-Total-Count"] = str(total)
+    return [service.balance_to_dict(balance, item) for balance, item in rows]
+
+
+@router.get("/stock/{sku}")
+def get_stock(
+    sku: str,
+    warehouse_code: str | None = None,
+    city_code: str | None = None,
+    _: dict = Depends(require_scope("stock:read")),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    return service.stock_availability(db, sku, warehouse_code, city_code)

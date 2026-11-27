@@ -1,5 +1,5 @@
 """Logika bisnis Slice D: data master (SCM-D-01), daftar barang paket (SCM-D-02), API stok (SCM-D-03), dashboard (SCM-D-04),
-audit log (SCM-D-06).
+audit log (SCM-D-06), transfer antar-gudang (SCM-D-10).
 
 Semua fungsi berjalan di transaksi pemanggil dan tidak melakukan commit.
 """
@@ -10,10 +10,10 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Query, Session
 
 from app.assets.models import SerializedUnit
-from app.catalog.models import PackageKit, PackageKitLine
-from app.core import audit, clock
+from app.catalog.models import PackageKit, PackageKitLine, Transfer, TransferLine
+from app.core import audit, clock, ledger, machines
 from app.core.auth import Actor
-from app.core.codes import new_vendor_code
+from app.core.codes import new_transfer_no, new_vendor_code
 from app.core.errors import ScmError
 from app.core.models import AuditLog, InventoryBalance, Item, Vendor, Warehouse
 from app.procurement.models import PurchaseOrder
@@ -304,6 +304,8 @@ def balance_to_dict(balance: InventoryBalance, item: Item) -> dict[str, Any]:
         "qty_available": balance.qty_available,
         "reorder_point": item.reorder_point,
         "below_rop": balance.qty_available < item.reorder_point,
+        # Saran transfer (SCM-D-10): gudang ini kelebihan stok dan bisa mengirim ke gudang yang di bawah ROP.
+        "overstock": balance.qty_available > item.reorder_point * 2,
     }
 
 
@@ -381,3 +383,121 @@ def audit_to_dict(row: AuditLog) -> dict[str, Any]:
         "detail": json.loads(row.detail) if row.detail else None,
         "correlation_id": row.correlation_id,
     }
+
+
+# ---------------------------------------------------------------------------- transfer
+
+TRANSFER_REF = "TRANSFER"
+
+
+def get_transfer(db: Session, transfer_no: str, for_update: bool = False) -> Transfer:
+    query = db.query(Transfer).filter(Transfer.transfer_no == transfer_no)
+    if for_update:
+        query = query.with_for_update()
+    transfer = query.first()
+    if transfer is None:
+        raise ScmError("TRANSFER_NOT_FOUND", f"Transfer {transfer_no} tidak ditemukan", 404, {"transfer_no": transfer_no})
+    return transfer
+
+
+def transfer_to_dict(transfer: Transfer) -> dict[str, Any]:
+    return {
+        "transfer_no": transfer.transfer_no,
+        "from_warehouse_code": transfer.from_warehouse_code,
+        "to_warehouse_code": transfer.to_warehouse_code,
+        "status": transfer.status,
+        "notes": transfer.notes,
+        "created_by": transfer.created_by,
+        "dispatched_by": transfer.dispatched_by,
+        "dispatched_at": clock.to_wib_iso(transfer.dispatched_at),
+        "received_by": transfer.received_by,
+        "received_at": clock.to_wib_iso(transfer.received_at),
+        "lines": [
+            {"item_sku": line.item_sku, "qty": line.qty}
+            for line in sorted(transfer.lines, key=lambda line: line.item_sku)
+        ],
+    }
+
+
+def create_transfer(
+    db: Session,
+    from_warehouse_code: str,
+    to_warehouse_code: str,
+    lines: list[tuple[str, int]],
+    notes: str | None,
+    actor: Actor,
+    correlation_id: str | None = None,
+) -> dict[str, Any]:
+    if from_warehouse_code == to_warehouse_code:
+        raise ScmError(
+            "SAME_WAREHOUSE", "Gudang asal dan tujuan tidak boleh sama", 422, {"warehouse_code": from_warehouse_code}
+        )
+    for code in (from_warehouse_code, to_warehouse_code):
+        if db.get(Warehouse, code) is None:
+            raise ScmError("WAREHOUSE_NOT_FOUND", f"Gudang {code} tidak ditemukan", 422, {"warehouse_code": code})
+    skus = [sku for sku, _ in lines]
+    duplicates = sorted({sku for sku in skus if skus.count(sku) > 1})
+    if duplicates:
+        raise ScmError("DUPLICATE_TRANSFER_LINE", "Satu barang hanya boleh muncul sekali", 422, {"item_skus": duplicates})
+    items = {item.sku: item for item in db.query(Item).filter(Item.sku.in_(skus))}
+    unknown = [sku for sku in skus if sku not in items]
+    if unknown:
+        raise ScmError("ITEM_NOT_FOUND", "Barang tidak dikenal", 422, {"item_skus": unknown})
+    serialized = [sku for sku in skus if items[sku].is_serialized]
+    if serialized:
+        # AssetPort belum punya operasi memindahkan unit antar-gudang; tanpa itu riwayat unit tidak bisa dijaga.
+        raise ScmError(
+            "SERIAL_TRANSFER_NOT_SUPPORTED",
+            "Transfer barang bernomor seri menunggu operasi pindah gudang di AssetPort (Slice C)",
+            422,
+            {"item_skus": serialized},
+        )
+
+    transfer = Transfer(
+        transfer_no=new_transfer_no(db),
+        from_warehouse_code=from_warehouse_code,
+        to_warehouse_code=to_warehouse_code,
+        status="REQUESTED",
+        notes=notes,
+        created_by=actor.sub,
+    )
+    transfer.lines = [TransferLine(item_sku=sku, qty=qty) for sku, qty in lines]
+    db.add(transfer)
+    db.flush()
+    result = transfer_to_dict(transfer)
+    audit.record(db, actor, "transfer.create", "Transfer", transfer.transfer_no, {"lines": result["lines"]}, correlation_id)
+    return result
+
+
+def dispatch_transfer(db: Session, transfer_no: str, actor: Actor, correlation_id: str | None = None) -> dict[str, Any]:
+    """Barang keluar dari gudang asal; saldo tujuan belum berubah."""
+    transfer = get_transfer(db, transfer_no, for_update=True)
+    machines.TRANSFER.assert_transition(transfer.status, "IN_TRANSIT")
+    for line in transfer.lines:
+        ledger.issue_extra(
+            db, warehouse_code=transfer.from_warehouse_code, item_sku=line.item_sku, qty=line.qty,
+            ref_type=TRANSFER_REF, ref_no=transfer_no, correlation_id=correlation_id, actor=actor,
+        )
+    transfer.status = "IN_TRANSIT"
+    transfer.dispatched_by = actor.sub
+    transfer.dispatched_at = clock.utcnow()
+    db.flush()
+    audit.record(db, actor, "transfer.dispatch", "Transfer", transfer_no, None, correlation_id)
+    return transfer_to_dict(transfer)
+
+
+def receive_transfer(db: Session, transfer_no: str, actor: Actor, correlation_id: str | None = None) -> dict[str, Any]:
+    """Penerimaan dikonfirmasi di gudang tujuan; baru sekarang saldo tujuan naik."""
+    transfer = get_transfer(db, transfer_no, for_update=True)
+    machines.TRANSFER.assert_transition(transfer.status, "RECEIVED")
+    for line in transfer.lines:
+        ledger.receive(
+            db, warehouse_code=transfer.to_warehouse_code, item_sku=line.item_sku, qty=line.qty,
+            ref_type=TRANSFER_REF, ref_no=transfer_no, correlation_id=correlation_id, actor=actor,
+        )
+    transfer.status = "RECEIVED"
+    transfer.received_by = actor.sub
+    transfer.received_at = clock.utcnow()
+    db.flush()
+    audit.record(db, actor, "transfer.receive", "Transfer", transfer_no, None, correlation_id)
+    return transfer_to_dict(transfer)

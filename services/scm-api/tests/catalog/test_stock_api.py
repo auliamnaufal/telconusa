@@ -136,7 +136,7 @@ def test_balance_row_shape_and_damaged_excluded(client, seeded_db, auth):
     assert rows == [{
         "warehouse_code": "WH-BKS", "item_sku": "ONT-01", "name": "Perangkat ONT Dual-Band GPON", "unit": "UNIT",
         "qty_physical": 40, "qty_reserved": 0, "qty_damaged": 1, "qty_available": 39,
-        "reorder_point": 10, "below_rop": False,
+        "reorder_point": 10, "below_rop": False, "overstock": True,
     }]
 
 

@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/PlaceholderPage";
+import { AuditLogList } from "@/features/audit/AuditLogList";
 
 export default function Page() {
-  return <PlaceholderPage title="Audit" issue="SCM-D-06" />;
+  return <AuditLogList />;
 }

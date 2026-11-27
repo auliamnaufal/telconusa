@@ -1,19 +1,22 @@
 """Endpoint HTTP Slice D.
 
-Data master (SCM-D-01), pengelolaan paket (SCM-D-02), `city_code` dan `/stock/balances` (SCM-D-03) berstatus DRAFT di `tracks/scm/contract-extension.md`;
+Data master (SCM-D-01), pengelolaan paket (SCM-D-02), `city_code` dan `/stock/balances` (SCM-D-03),
+`/audit-logs` (SCM-D-06) berstatus DRAFT di `tracks/scm/contract-extension.md`;
 `GET /package-kits/{sku}`, `GET /stock/{sku}`, dan `GET /dashboard/summary` (SCM-D-04; kolom KPI tambahan masih DRAFT) ada di
 `contracts/openapi/scm.yaml`.
 """
 from decimal import Decimal
 from typing import Any
 
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, Header, Query, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.catalog import service
 from app.core.auth import ROLES_MANAGER, Actor, require_scm_roles, require_scope
+
+ROLES_AUDIT = ("SCM_MANAGER", "DIRECTOR")
 from app.core.idempotency import idempotency_key, run_idempotent
 from app.database import get_db
 
@@ -62,6 +65,10 @@ class KitReplaceBody(BaseModel):
     lines: list[KitLineBody] = Field(min_length=1)
 
 
+def correlation_id(x_correlation_id: str | None = Header(default=None)) -> str | None:
+    return x_correlation_id
+
+
 def _changes(body: BaseModel) -> dict[str, Any]:
     """Hanya bidang yang dikirim; `null` eksplisit diabaikan kecuali `specification`."""
     sent = body.model_dump(exclude_unset=True)
@@ -90,10 +97,11 @@ def create_item(
     body: ItemCreateBody,
     key: str | None = Depends(idempotency_key),
     actor: Actor = Depends(require_scm_roles(*ROLES_MANAGER)),
+    cid: str | None = Depends(correlation_id),
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     status, payload = run_idempotent(
-        db, key, "POST /api/v1/items", lambda: (201, service.create_item(db, body.model_dump(), actor))
+        db, key, "POST /api/v1/items", lambda: (201, service.create_item(db, body.model_dump(), actor, cid))
     )
     return JSONResponse(content=payload, status_code=status)
 
@@ -103,9 +111,10 @@ def update_item(
     sku: str,
     body: ItemUpdateBody,
     actor: Actor = Depends(require_scm_roles(*ROLES_MANAGER)),
+    cid: str | None = Depends(correlation_id),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
-    result = service.update_item(db, sku, _changes(body), actor)
+    result = service.update_item(db, sku, _changes(body), actor, cid)
     db.commit()
     return result
 
@@ -148,10 +157,11 @@ def create_vendor(
     body: VendorCreateBody,
     key: str | None = Depends(idempotency_key),
     actor: Actor = Depends(require_scm_roles(*ROLES_MANAGER)),
+    cid: str | None = Depends(correlation_id),
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     status, payload = run_idempotent(
-        db, key, "POST /api/v1/vendors", lambda: (201, service.create_vendor(db, body.model_dump(), actor))
+        db, key, "POST /api/v1/vendors", lambda: (201, service.create_vendor(db, body.model_dump(), actor, cid))
     )
     return JSONResponse(content=payload, status_code=status)
 
@@ -161,9 +171,10 @@ def update_vendor(
     code: str,
     body: VendorUpdateBody,
     actor: Actor = Depends(require_scm_roles(*ROLES_MANAGER)),
+    cid: str | None = Depends(correlation_id),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
-    result = service.update_vendor(db, code, _changes(body), actor)
+    result = service.update_vendor(db, code, _changes(body), actor, cid)
     db.commit()
     return result
 
@@ -198,9 +209,10 @@ def replace_package_kit(
     sku: str,
     body: KitReplaceBody,
     actor: Actor = Depends(require_scm_roles(*ROLES_MANAGER)),
+    cid: str | None = Depends(correlation_id),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
-    result = service.replace_kit(db, sku, [(line.item_sku, line.qty) for line in body.lines], actor)
+    result = service.replace_kit(db, sku, [(line.item_sku, line.qty) for line in body.lines], actor, cid)
     db.commit()
     return result
 
@@ -244,3 +256,22 @@ def dashboard_summary(
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     return service.dashboard_summary(db)
+
+
+# ---------------------------------------------------------------------------- audit log
+
+
+@router.get("/audit-logs")
+def list_audit_logs(
+    response: Response,
+    entity: str | None = None,
+    entity_id: str | None = None,
+    actor: str | None = None,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    _: Actor = Depends(require_scm_roles(*ROLES_AUDIT)),
+    db: Session = Depends(get_db),
+) -> list[dict[str, Any]]:
+    rows, total = service.list_audit_logs(db, entity, entity_id, actor, page, limit)
+    response.headers["X-Total-Count"] = str(total)
+    return [service.audit_to_dict(row) for row in rows]

@@ -1,7 +1,9 @@
-"""Logika bisnis Slice D: data master (SCM-D-01), daftar barang paket (SCM-D-02), API stok (SCM-D-03), dashboard (SCM-D-04).
+"""Logika bisnis Slice D: data master (SCM-D-01), daftar barang paket (SCM-D-02), API stok (SCM-D-03), dashboard (SCM-D-04),
+audit log (SCM-D-06).
 
 Semua fungsi berjalan di transaksi pemanggil dan tidak melakukan commit.
 """
+import json
 from typing import Any
 
 from sqlalchemy import func, or_
@@ -9,11 +11,11 @@ from sqlalchemy.orm import Query, Session
 
 from app.assets.models import SerializedUnit
 from app.catalog.models import PackageKit, PackageKitLine
-from app.core import audit
+from app.core import audit, clock
 from app.core.auth import Actor
 from app.core.codes import new_vendor_code
 from app.core.errors import ScmError
-from app.core.models import InventoryBalance, Item, Vendor, Warehouse
+from app.core.models import AuditLog, InventoryBalance, Item, Vendor, Warehouse
 from app.procurement.models import PurchaseOrder
 from app.stock.models import StockRequest
 
@@ -58,14 +60,14 @@ def item_to_dict(item: Item) -> dict[str, Any]:
     }
 
 
-def create_item(db: Session, data: dict[str, Any], actor: Actor) -> dict[str, Any]:
+def create_item(db: Session, data: dict[str, Any], actor: Actor, correlation_id: str | None = None) -> dict[str, Any]:
     sku = data["sku"]
     if db.get(Item, sku) is not None:
         raise ScmError("DUPLICATE_SKU", f"SKU {sku} sudah ada", 409, {"item_sku": sku})
     item = Item(sku=sku, **{field: data[field] for field in ITEM_FIELDS if field in data})
     db.add(item)
     db.flush()
-    audit.record(db, actor, "item.created", "item", sku, item_to_dict(item))
+    audit.record(db, actor, "item.create", "Item", sku, item_to_dict(item), correlation_id)
     return item_to_dict(item)
 
 
@@ -84,7 +86,9 @@ def _has_stock_or_units(db: Session, sku: str) -> bool:
     return has_balance or has_units
 
 
-def update_item(db: Session, sku: str, changes: dict[str, Any], actor: Actor) -> dict[str, Any]:
+def update_item(
+    db: Session, sku: str, changes: dict[str, Any], actor: Actor, correlation_id: str | None = None
+) -> dict[str, Any]:
     item = get_item(db, sku)
     if (
         "is_serialized" in changes
@@ -103,7 +107,7 @@ def update_item(db: Session, sku: str, changes: dict[str, Any], actor: Actor) ->
             setattr(item, field, changes[field])
     db.flush()
     after = item_to_dict(item)
-    audit.record(db, actor, "item.updated", "item", sku, {"before": before, "after": after})
+    audit.record(db, actor, "item.update", "Item", sku, {"before": before, "after": after}, correlation_id)
     return after
 
 
@@ -144,15 +148,17 @@ def vendor_to_dict(vendor: Vendor) -> dict[str, Any]:
     }
 
 
-def create_vendor(db: Session, data: dict[str, Any], actor: Actor) -> dict[str, Any]:
+def create_vendor(db: Session, data: dict[str, Any], actor: Actor, correlation_id: str | None = None) -> dict[str, Any]:
     vendor = Vendor(code=new_vendor_code(db), **{field: data[field] for field in VENDOR_FIELDS if field in data})
     db.add(vendor)
     db.flush()
-    audit.record(db, actor, "vendor.created", "vendor", vendor.code, vendor_to_dict(vendor))
+    audit.record(db, actor, "vendor.create", "Vendor", vendor.code, vendor_to_dict(vendor), correlation_id)
     return vendor_to_dict(vendor)
 
 
-def update_vendor(db: Session, code: str, changes: dict[str, Any], actor: Actor) -> dict[str, Any]:
+def update_vendor(
+    db: Session, code: str, changes: dict[str, Any], actor: Actor, correlation_id: str | None = None
+) -> dict[str, Any]:
     vendor = get_vendor(db, code)
     before = vendor_to_dict(vendor)
     for field in VENDOR_FIELDS:
@@ -160,7 +166,7 @@ def update_vendor(db: Session, code: str, changes: dict[str, Any], actor: Actor)
             setattr(vendor, field, changes[field])
     db.flush()
     after = vendor_to_dict(vendor)
-    audit.record(db, actor, "vendor.updated", "vendor", code, {"before": before, "after": after})
+    audit.record(db, actor, "vendor.update", "Vendor", code, {"before": before, "after": after}, correlation_id)
     return after
 
 
@@ -196,7 +202,9 @@ def kit_to_dict(db: Session, kit: PackageKit) -> dict[str, Any]:
     }
 
 
-def replace_kit(db: Session, service_sku: str, lines: list[tuple[str, int]], actor: Actor) -> dict[str, Any]:
+def replace_kit(
+    db: Session, service_sku: str, lines: list[tuple[str, int]], actor: Actor, correlation_id: str | None = None
+) -> dict[str, Any]:
     """Ganti seluruh baris paket; buat paket bila belum ada. Satuan diambil dari master barang."""
     skus = [sku for sku, _ in lines]
     duplicates = sorted({sku for sku in skus if skus.count(sku) > 1})
@@ -215,7 +223,9 @@ def replace_kit(db: Session, service_sku: str, lines: list[tuple[str, int]], act
     kit.lines = [PackageKitLine(item_sku=sku, qty=qty, unit=items[sku].unit) for sku, qty in lines]
     db.flush()
     after = kit_to_dict(db, kit)
-    audit.record(db, actor, "package_kit.replaced", "package_kit", service_sku, {"before": before, "after": after})
+    audit.record(
+        db, actor, "package_kit.replace", "PackageKit", service_sku, {"before": before, "after": after}, correlation_id
+    )
     return after
 
 
@@ -338,4 +348,36 @@ def dashboard_summary(db: Session) -> dict[str, Any]:
             {"stock_request_no": row.stock_request_no, "ticket_code": row.ticket_code, "status": row.status}
             for row in recent
         ],
+    }
+
+
+# ---------------------------------------------------------------------------- audit log
+
+
+def list_audit_logs(
+    db: Session, entity: str | None, entity_id: str | None, actor: str | None, page: int, limit: int
+) -> tuple[list[AuditLog], int]:
+    query = db.query(AuditLog)
+    if entity:
+        query = query.filter(AuditLog.entity == entity)
+    if entity_id:
+        query = query.filter(AuditLog.entity_id == entity_id)
+    if actor:
+        query = query.filter(AuditLog.actor == actor)
+    total = query.count()
+    rows = query.order_by(AuditLog.at.desc(), AuditLog.id.desc()).offset((page - 1) * limit).limit(limit).all()
+    return rows, total
+
+
+def audit_to_dict(row: AuditLog) -> dict[str, Any]:
+    return {
+        "id": row.id,
+        "at": clock.to_wib_iso(row.at),
+        "actor": row.actor,
+        "role": row.role,
+        "action": row.action,
+        "entity": row.entity,
+        "entity_id": row.entity_id,
+        "detail": json.loads(row.detail) if row.detail else None,
+        "correlation_id": row.correlation_id,
     }

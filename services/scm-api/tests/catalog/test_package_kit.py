@@ -99,7 +99,7 @@ def test_put_replaces_all_lines(client, seeded_db, auth, crm):
     }
     seeded_db.expire_all()
     assert seeded_db.query(PackageKitLine).filter_by(service_sku="HOME-100").count() == 3
-    assert seeded_db.query(AuditLog).filter_by(action="package_kit.replaced", entity_id="HOME-100").count() == 1
+    assert seeded_db.query(AuditLog).filter_by(action="package_kit.replace", entity_id="HOME-100").count() == 1
 
 
 def test_put_creates_new_kit(client, seeded_db, auth, crm):

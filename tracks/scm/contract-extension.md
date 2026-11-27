@@ -8,6 +8,11 @@ Draf satu PR ke `contracts/` (area bersama, perlu persetujuan keempat track). Sl
 
 Issue yang mengubah file ini menjadi PR: `SCM-D-08`.
 
+> **Status 2026-11-27 (SCM-D-08):** isi bagian 1 sampai 3 sudah dipindahkan ke `contracts/openapi/scm.yaml`, `contracts/events/` dan
+> `contracts/examples/events/`, dan bagian 4 ditulis di Requests `tracks/crm.md`, `tracks/finance.md`, `tracks/hrm.md`. Endpoint Tier 2
+> Slice B dan C (`quotes`, `submit`, `mark-lost`, `write-off`, `assets/technicians`) belum dimasukkan; kontraknya menyusul bersama
+> issue masing-masing. File ini tetap disimpan sebagai riwayat usulan sampai PR kontrak di-merge.
+
 ## 1. Endpoint baru (`contracts/openapi/scm.yaml`)
 
 Semua di bawah `/api/v1`, `x-auth: user`, `x-consumers: []`. Role lengkap per endpoint ada di `spec.md` bagian 8.

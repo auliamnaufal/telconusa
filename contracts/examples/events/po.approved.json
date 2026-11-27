@@ -1,0 +1,22 @@
+{
+  "event_id": "evt_SCMD08000002",
+  "event_type": "po.approved",
+  "version": 1,
+  "occurred_at": "2026-11-27T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "PO-2026-0001",
+  "data": {
+    "po_no": "PO-2026-0001",
+    "purchase_request_no": "PR-2026-0001",
+    "vendor_code": "VEN-0001",
+    "total_amount": 3500000,
+    "cost_center_code": "CC-SCM",
+    "approvals": [
+      {
+        "role": "SCM_MANAGER",
+        "employee_id": "EMP-0005"
+      }
+    ],
+    "approved_at": "2026-11-27T10:00:00+07:00"
+  }
+}

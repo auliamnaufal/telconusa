@@ -1,0 +1,23 @@
+{
+  "event_id": "evt_SCMD08000003",
+  "event_type": "goods.received",
+  "version": 1,
+  "occurred_at": "2026-11-27T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "PO-2026-0001",
+  "data": {
+    "gr_no": "GR-2026-0001",
+    "po_no": "PO-2026-0001",
+    "vendor_code": "VEN-0001",
+    "warehouse_code": "WH-BDG",
+    "lines": [
+      {
+        "item_sku": "ONT-01",
+        "qty": 10,
+        "unit_cost": 350000
+      }
+    ],
+    "total_value": 3500000,
+    "received_at": "2026-11-29T13:00:00+07:00"
+  }
+}

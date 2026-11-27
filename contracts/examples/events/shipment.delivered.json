@@ -1,0 +1,20 @@
+{
+  "event_id": "evt_SCMD08000005",
+  "event_type": "shipment.delivered",
+  "version": 1,
+  "occurred_at": "2026-11-27T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "TRF-2026-0001",
+  "data": {
+    "transfer_no": "TRF-2026-0001",
+    "from_warehouse_code": "WH-BKS",
+    "to_warehouse_code": "WH-SBY",
+    "lines": [
+      {
+        "item_sku": "CBL-FO",
+        "qty": 1000
+      }
+    ],
+    "delivered_at": "2026-11-28T14:00:00+07:00"
+  }
+}

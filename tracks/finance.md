@@ -27,7 +27,9 @@ consumes:
   api:
   - {id: 'GET /api/v1/orders/{order_no}', from: crm, status: PLANNED}
   events:
+  - {id: goods.received, from: scm, status: PLANNED}
   - {id: invoice.requested, from: crm, status: PLANNED}
+  - {id: po.approved, from: scm, status: PLANNED}
   - {id: subscription.activated, from: crm, status: PLANNED}
 ---
 
@@ -82,7 +84,8 @@ Temuan review `services/finance-api` per 2026-11-25. **P0** dikerjakan lebih dul
 
 ## Requests
 
-_Belum ada. Tim lain menambah baris `- dari <track>, <tanggal>: <permintaan>` lewat PR._
+- dari scm, 2026-11-27: terima `po.approved` untuk menahan anggaran dan `goods.received` untuk mengakui persediaan.
+- dari scm, 2026-11-27: pastikan `POST /api/v1/budgets/check` idempoten dan meneruskan `X-Correlation-Id`.
 
 ## Decisions
 

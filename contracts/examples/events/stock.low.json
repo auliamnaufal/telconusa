@@ -1,0 +1,15 @@
+{
+  "event_id": "evt_SCMD08000004",
+  "event_type": "stock.low",
+  "version": 1,
+  "occurred_at": "2026-11-27T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "SR-2026-000004",
+  "data": {
+    "item_sku": "ONT-01",
+    "warehouse_code": "WH-SBY",
+    "qty_available": 8,
+    "reorder_point": 10,
+    "purchase_request_no": "PR-2026-0002"
+  }
+}

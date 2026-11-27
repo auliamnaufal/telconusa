@@ -74,7 +74,7 @@ Aturan `depends_on`: hanya Slice 0 atau issue sebelumnya di slice yang sama. Sat
 | [SCM-D-05](SCM-D-05-web-dashboard-stock-catalog.md) | Layar dashboard, stok, dan katalog | 1 | P1 | DONE | mike |
 | [SCM-D-06](SCM-D-06-audit-log-page.md) | Halaman dan API audit log | 2 | P2 | IN_PROGRESS | mike |
 | [SCM-D-07](SCM-D-07-status-and-demo-guide.md) | Status LIVE di `tracks/scm.md` dan panduan demo lokal | 1 | P1 | TODO | mike |
-| [SCM-D-08](SCM-D-08-contract-extension-pr.md) | PR kontrak bersama dari `contract-extension.md` | 1 | P1 | TODO | mike |
+| [SCM-D-08](SCM-D-08-contract-extension-pr.md) | PR kontrak bersama dari `contract-extension.md` | 1 | P1 | IN_PROGRESS | mike |
 | [SCM-D-09](SCM-D-09-e2e-demo-scenario.md) | Tes skenario demo end-to-end dan skenario gagal | 1 | P0 | TODO | mike |
 | [SCM-D-10](SCM-D-10-warehouse-transfer.md) | Transfer antar-gudang dengan konfirmasi terima | 2 | P2 | IN_PROGRESS | mike |
 

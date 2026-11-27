@@ -1,0 +1,15 @@
+{
+  "event_id": "evt_SCMD08000001",
+  "event_type": "stockrequest.cancelled",
+  "version": 1,
+  "occurred_at": "2026-11-27T10:00:00+07:00",
+  "source": "scm",
+  "correlation_id": "TKT-000001",
+  "data": {
+    "stock_request_no": "SR-2026-000001",
+    "ticket_code": "TKT-000001",
+    "status": "CANCELLED",
+    "reason": "RESERVATION_EXPIRED",
+    "cancelled_at": "2026-11-28T10:00:00+07:00"
+  }
+}

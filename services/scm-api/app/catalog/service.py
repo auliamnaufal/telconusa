@@ -1,4 +1,4 @@
-"""Logika bisnis Slice D: data master (SCM-D-01) dan daftar barang paket (SCM-D-02).
+"""Logika bisnis Slice D: data master (SCM-D-01), daftar barang paket (SCM-D-02), API stok (SCM-D-03).
 
 Semua fungsi berjalan di transaksi pemanggil dan tidak melakukan commit.
 """
@@ -215,3 +215,81 @@ def replace_kit(db: Session, service_sku: str, lines: list[tuple[str, int]], act
     after = kit_to_dict(db, kit)
     audit.record(db, actor, "package_kit.replaced", "package_kit", service_sku, {"before": before, "after": after})
     return after
+
+
+# ---------------------------------------------------------------------------- stok
+
+
+def _scope_warehouses(db: Session, warehouse_code: str | None, city_code: str | None) -> list[str]:
+    """Gudang dalam lingkup; tanpa filter berarti semua gudang."""
+    query = db.query(Warehouse.code)
+    if warehouse_code:
+        query = query.filter(Warehouse.code == warehouse_code)
+    if city_code:
+        query = query.filter(Warehouse.city_code == city_code)
+    codes = [code for (code,) in query.order_by(Warehouse.code)]
+    if not codes:
+        raise ScmError(
+            "WAREHOUSE_NOT_FOUND",
+            "Tidak ada gudang untuk lingkup yang diminta",
+            404,
+            {"warehouse_code": warehouse_code, "city_code": city_code},
+        )
+    return codes
+
+
+def stock_availability(db: Session, sku: str, warehouse_code: str | None, city_code: str | None) -> dict[str, Any]:
+    """Ketersediaan indikatif untuk CRM (`getStock`). Barang rusak dan tereservasi tidak dihitung.
+
+    `reorder_point` di master berlaku per gudang, jadi ROP lingkup = ROP x jumlah gudang dalam lingkup.
+    """
+    item = get_item(db, sku)
+    codes = _scope_warehouses(db, warehouse_code, city_code)
+    balances = (
+        db.query(InventoryBalance)
+        .filter(InventoryBalance.item_sku == sku, InventoryBalance.warehouse_code.in_(codes))
+        .all()
+    )
+    qty_available = sum(balance.qty_available for balance in balances)
+    reorder_point = item.reorder_point * len(codes)
+    return {
+        "sku": item.sku,
+        "name": item.name,
+        "unit": item.unit,
+        "qty_available": qty_available,
+        "reorder_point": reorder_point,
+        "below_rop": qty_available < reorder_point,
+    }
+
+
+def list_balances(
+    db: Session, warehouse_code: str | None, item_sku: str | None, page: int, limit: int
+) -> tuple[list[tuple[InventoryBalance, Item]], int]:
+    query = db.query(InventoryBalance, Item).join(Item, Item.sku == InventoryBalance.item_sku)
+    if warehouse_code:
+        query = query.filter(InventoryBalance.warehouse_code == warehouse_code)
+    if item_sku:
+        query = query.filter(InventoryBalance.item_sku == item_sku)
+    total = query.count()
+    rows = (
+        query.order_by(InventoryBalance.warehouse_code, InventoryBalance.item_sku)
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .all()
+    )
+    return rows, total
+
+
+def balance_to_dict(balance: InventoryBalance, item: Item) -> dict[str, Any]:
+    return {
+        "warehouse_code": balance.warehouse_code,
+        "item_sku": balance.item_sku,
+        "name": item.name,
+        "unit": item.unit,
+        "qty_physical": balance.qty_physical,
+        "qty_reserved": balance.qty_reserved,
+        "qty_damaged": balance.qty_damaged,
+        "qty_available": balance.qty_available,
+        "reorder_point": item.reorder_point,
+        "below_rop": balance.qty_available < item.reorder_point,
+    }

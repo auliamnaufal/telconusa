@@ -66,7 +66,7 @@ Consumers are shown as `track:status` using the status each consumer declares in
 | scm | API | `GET /api/v1/package-kits/{sku}` | LIVE | 2026-11-27 | crm:PLANNED |
 | scm | API | `GET /api/v1/stock-requests` | LIVE | 2026-11-26 | - |
 | scm | API | `GET /api/v1/stock-requests/{stock_request_no}` | LIVE | 2026-11-26 | - |
-| scm | API | `GET /api/v1/stock/{sku}` | MOCKED | 2026-11-25 | crm:PLANNED |
+| scm | API | `GET /api/v1/stock/{sku}` | LIVE | 2026-11-27 | crm:PLANNED |
 | scm | API | `POST /api/v1/purchase-orders` | MOCKED | 2026-11-25 | - |
 | scm | API | `POST /api/v1/stock-requests/{stock_request_no}/flag-damaged` | LIVE | 2026-11-26 | - |
 | scm | API | `POST /api/v1/stock-requests/{stock_request_no}/issue` | LIVE | 2026-11-26 | - |
@@ -83,4 +83,4 @@ Consumers are shown as `track:status` using the status each consumer declares in
 | crm | 0 | 28 | 0 | 0 | 0 | 28 |
 | finance | 0 | 10 | 0 | 0 | 0 | 10 |
 | hrm | 0 | 6 | 0 | 0 | 0 | 6 |
-| scm | 0 | 3 | 10 | 0 | 0 | 13 |
+| scm | 0 | 2 | 11 | 0 | 0 | 13 |
